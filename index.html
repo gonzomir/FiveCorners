@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<title>4sq app</title>
+		<script type="text/javascript" src="jquery.js"></script>
+		<script type="text/javascript">
+
+		$(document).ready(function(){
+
+			if (navigator.geolocation){
+				navigator.geolocation.getCurrentPosition(
+				
+					function (position) {  
+
+						$('body').append('<p>Position: ' +  position.coords.latitude + ' ' + position.coords.longitude + '</p>');
+			 
+						var url = 'ajax.php?action=venues&geolat=' + position.coords.latitude + '&geolong=' + position.coords.longitude;
+
+						$.getJSON(url, function(data){
+				
+							var ul = document.createElement('ul');
+							ul.id = 'venues';
+							var $ul = $(ul);
+							
+							var venues = data.groups[0].venues;
+							
+							var v = venues.length;
+							for(i = 0; i<v; i++){
+								var venue = venues[i];
+								$ul.append('<li><h3>' + venue.name + '</h3><p>' + venue.address + ', ' + venue.city + '</p></li>');
+							}
+				
+							$('body').append($ul);
+				
+						});
+		
+					},
+					// next function is the error callback
+					function (error) {
+						switch(error.code) {
+							case error.TIMEOUT:
+								alert ('Timeout');
+								break;
+							case error.POSITION_UNAVAILABLE:
+								alert ('Position unavailable');
+								break;
+							case error.PERMISSION_DENIED:
+								alert ('Permission denied');
+								break;
+							case error.UNKNOWN_ERROR:
+								alert ('Unknown error');
+								break;
+						}
+					}
+				);
+			}
+
+		});
+
+
+/**
+* Function : dump()
+* Arguments: The data - array,hash(associative array),object
+*    The level - OPTIONAL
+* Returns  : The textual representation of the array.
+* This function was inspired by the print_r function of PHP.
+* This will accept some data as the argument and return a
+* text that will be a more readable version of the
+* array/hash/object that is given.
+*/
+function dump(arr,level) {
+var dumped_text = "";
+if(!level) level = 0;
+
+//The padding given at the beginning of the line.
+var level_padding = "";
+for(var j=0;j<level+1;j++) level_padding += "    ";
+
+if(typeof(arr) == 'object') { //Array/Hashes/Objects
+ for(var item in arr) {
+  var value = arr[item];
+ 
+  if(typeof(value) == 'object') { //If it is an array,
+   dumped_text += level_padding + "'" + item + "' ...\n";
+   dumped_text += dump(value,level+1);
+  } else {
+   dumped_text += level_padding + "'" + item + "' => \"" + value + "\"\n";
+  }
+ }
+} else { //Stings/Chars/Numbers etc.
+ dumped_text = "===>"+arr+"<===("+typeof(arr)+")";
+}
+return dumped_text;
+} 
+		</script>
+	</head>
+	<body>
+		<h1>Venues neadby</h1>
+	</body>
+</html>
