@@ -17,24 +17,44 @@
 			 
 						var url = 'ajax.php?action=venues&geolat=' + position.coords.latitude + '&geolong=' + position.coords.longitude;
 
-						$.getJSON(url, function(data){
-				
-							var ul = document.createElement('ul');
-							ul.id = 'venues';
-							var $ul = $(ul);
+						
+						$.ajax({
+							url: url, 
+							dataType: 'json',
+							success: function(data, textStatus, XMLHttpRequest){
+									
+									//alert(XMLHttpRequest.status + '\n' + XMLHttpRequest.responseText);
+									
+									var ul = document.createElement('ul');
+									ul.id = 'venues';
+									var $ul = $(ul);
 							
-							var venues = data.groups[0].venues;
+									var venues = data.groups[0].venues;
 							
-							var v = venues.length;
-							for(i = 0; i<v; i++){
-								var venue = venues[i];
-								$ul.append('<li><h3>' + venue.name + '</h3><p>' + venue.address + ', ' + venue.city + '</p></li>');
-							}
+									var v = venues.length;
+									for(i = 0; i<v; i++){
+										var venue = venues[i];
+										$ul.append('<li><h3>' + venue.name + '</h3><p>' + venue.address + ', ' + venue.city + '</p></li><a href="ajax.php?action=checkin&amp;venue=' + venue.id + '" class="checkin">checkin</a>');
+									}
 				
-							$('body').append($ul);
+									$('body').append($ul);
+								
+								},
+							error: function(XMLHttpRequest, textStatus, errorThrown){
+
+									if(XMLHttpRequest.status == 401){
+
+										$('body').append('<p><a href="' + XMLHttpRequest.responseText + '">Login Via Foursquare</a></p>');
+
+									}
+									else{
+										alert(XMLHttpRequest.status + '\n' + XMLHttpRequest.responseText);
+									}
+				
+								}
 				
 						});
-		
+						
 					},
 					// next function is the error callback
 					function (error) {
@@ -55,6 +75,37 @@
 					}
 				);
 			}
+			
+			$('a.checkin').live('click', function(){
+			
+					$.ajax({
+						url: this.href, 
+						dataType: 'json',
+						success: function(data, textStatus, XMLHttpRequest){
+								
+								//alert(XMLHttpRequest.status + '\n' + XMLHttpRequest.responseText);
+								this.parent('li').addClass('checked-in');
+							
+							},
+						error: function(XMLHttpRequest, textStatus, errorThrown){
+
+								if(XMLHttpRequest.status == 401){
+
+									$('ul').remove();
+									$('body').append('<p><a href="' + XMLHttpRequest.responseText + '">Login Via Foursquare</a></p>');
+
+								}
+								else{
+									alert(XMLHttpRequest.status + '\n' + XMLHttpRequest.responseText);
+								}
+			
+							}
+			
+					});
+					
+					return false;
+					
+			});
 
 		});
 
@@ -96,6 +147,6 @@ return dumped_text;
 		</script>
 	</head>
 	<body>
-		<h1>Venues neadby</h1>
+		<h1>Five Corners</h1>
 	</body>
 </html>
