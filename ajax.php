@@ -63,7 +63,7 @@ switch($_GET['action']){
 		break;
 		
 	case 'checkin':
-	
+		
 		unset($_GET['action']);
 		
 		$checkin = $foursquareObj->post_checkin($_GET);

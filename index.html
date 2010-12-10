@@ -3,18 +3,19 @@
 	<head>
 		<meta charset="UTF-8" />
 		<title>FiveCorners</title>
-		<meta name="viewport" content="width=device-width" />
+		<meta name = "viewport" content = "width = device-width, height = device-height" />
 		<script type="text/javascript" src="jquery.js"></script>
 		<script type="text/javascript">
 
-		$(document).ready(function(){
+		function getVenues(){
 
 			if (navigator.geolocation){
 				navigator.geolocation.getCurrentPosition(
 				
 					function (position) {  
 
-						$('#app-content').append('<p>Position: ' +  position.coords.latitude + ' ' + position.coords.longitude + '</p>');
+						$('#app-content').html('');
+						$('header p').html('Position: ' +  position.coords.latitude + ', ' + position.coords.longitude);
 			 			
 			 			$('#app-content').attr('data-geolat', position.coords.latitude);
 			 			$('#app-content').attr('data-geolong', position.coords.longitude);
@@ -36,6 +37,9 @@
 									var venues = data.groups[0].venues;
 							
 									var v = venues.length;
+									
+									//$('#app-content').append('<p>'+data.groups[0].venues.toString()+'</p>');
+									
 									for(i = 0; i<v; i++){
 										var venue = venues[i];
 										$ul.append('<li><h3>' + venue.name + '</h3><p>' + venue.address + ', ' + venue.city + '</p><nav><a href="ajax.php?action=checkin&amp;vid=' + venue.id + '" class="checkin">checkin</a></nav></li>');
@@ -48,7 +52,7 @@
 
 									if(XMLHttpRequest.status == 401){
 
-										$('#app-content').append('<p class="login"><a href="' + XMLHttpRequest.responseText + '">Login Via Foursquare</a></p>');
+										$('#app-content').append('<div class="login"><a href="' + XMLHttpRequest.responseText + '">Login Via Foursquare</a></div>');
 
 									}
 									else{
@@ -79,7 +83,10 @@
 					}
 				);
 			}
+		}
 			
+		$(document).ready(function(){
+
 			$('a.checkin').live('click', function(){
 			
 					$.ajax({
@@ -87,19 +94,27 @@
 						dataType: 'json',
 						success: function(data, textStatus, XMLHttpRequest){
 								
-								$(this).parent('li').addClass('checked-in');
-								alert(data.checkin.message);
-								if(data.badges.length>0){
-									alert('Badge:' + data.badges.badge.name + '\n' + data.badges.badge.description);
+								$('#app-content').html('');
+								
+								var $div = $('<div class="checked-in"></div>');
+								$div.append('<h3>' + data.checkin.message + '</h3>');
+								$div.append('<p>' + data.checkin.mayor.message + '</p>');
+								
+								/*
+								if(data.checkin.badges.length>0){
+									$div.append('<img class="badge" alt="" src="' + data.checkin.badges.badge.icon + '" /><h3>You just won ' + data.checkin.badges.badge.name + ' badge.</h3><p>' + data.checkin.badges.badge.description + '</p>');
 								}
+								*/
+								
+								$('#app-content').append($div);
 							
 							},
 						error: function(XMLHttpRequest, textStatus, errorThrown){
 
 								if(XMLHttpRequest.status == 401){
 
-									$('#app-content ul').remove();
-									$('#app-content ').append('<p><a href="' + XMLHttpRequest.responseText + '">Login Via Foursquare</a></p>');
+									$('#app-content').html('');
+									$('#app-content ').append('<div class="login"><a href="' + XMLHttpRequest.responseText + '">Login Via Foursquare</a></div>');
 
 								}
 								else{
@@ -113,51 +128,11 @@
 					return false;
 					
 			});
+			
+			$('header nav a').click(getVenues);
+			
+			getVenues();
 
-			$('header nav a').live('click', function(){
-
-				var url = this.href + '&geolat=' + $('#app-content').data('geolat') + '&geolong=' + $('#app-content').data('geolong');
-
-				$.ajax({
-					url: url, 
-					dataType: 'json',
-					success: function(data, textStatus, XMLHttpRequest){
-							
-							//alert(XMLHttpRequest.status + '\n' + XMLHttpRequest.responseText);
-							
-							var ul = document.createElement('ul');
-							ul.id = 'venues';
-							var $ul = $(ul);
-					
-							var venues = data.groups[0].venues;
-					
-							var v = venues.length;
-							for(i = 0; i<v; i++){
-								var venue = venues[i];
-								$ul.append('<li><h3>' + venue.name + '</h3><p>' + venue.address + ', ' + venue.city + '</p><nav><a href="ajax.php?action=checkin&amp;vid=' + venue.id + '" class="checkin">checkin</a></nav></li>');
-							}
-		
-							$('#app-content').append($ul);
-						
-						},
-					error: function(XMLHttpRequest, textStatus, errorThrown){
-
-							if(XMLHttpRequest.status == 401){
-
-								$('#app-content').append('<p class="login"><a href="' + XMLHttpRequest.responseText + '">Login Via Foursquare</a></p>');
-
-							}
-							else{
-								alert(XMLHttpRequest.status + '\n' + XMLHttpRequest.responseText);
-							}
-		
-						}
-		
-				});
-				
-				return false;
-				
-			});
 
 		});
 
@@ -168,11 +143,10 @@
 				padding: 0;
 				background: #fff;
 				color: #333;
-				font-size: 14px;
+				font-size: 16px;
 				font-family: "Gil Sans", "Helvetika", sans-serif;
 				text-align: left;
 			}
-			
 			header {
 				display: block;
 				padding: 10px 20px;
@@ -180,53 +154,64 @@
 				color: #fff;
 			}
 			h1 {
-				font-size: 20px;
+				font-size: 24px;
+				font-weight: bold;
 				text-align: left;
+				margin: 0;
 			}
 			nav {
 				display: block;
 				float: right;
-				margin-top: -38px;
+				margin-top: -30px;
 			}
-			nav a {
+			a {
 				display: inline-block;
 				padding: 3px 5px;
 				border: 1px solid #1B6CB5;
-				border-radius: 3px;
+				border-radius: 5px;
 				background: #fff;
 				color: #1B6CB5;
+				text-decoration: none;
+				font-weight: bold;
+			}
+			p {
+				margin-bottom: 1.2em;
 			}
 			#app-content {
-				padding: 20px;
+				display: block;
+				padding: 20px 0;
 			}
 			#app-content ul {
 				list-style-type: none;
 				padding: 0;
 				margin:0;
+				border-bottom: 1px solid #ccc;
 			}
 			#app-content ul li {
-				padding: 5px 0px;
-				margin:5px 0px;
+				padding: 10px 20px;
+				margin: 0px;
 				border-top: 1px solid #ccc;
 			}
-			#app-content ul li.checked-in {
-				background: #0CBADF;
-				color: #fff;
+			#app-content ul li p, header p {
+				margin: 0;
 			}
 			h3 {
 				font-size: 18px;
 				margin:0;
 			}
-			p {
-				margin:0;
+			#app-content ul li nav {
+				margin-top: -33px;
 			}
-			a.checkin {
-				display: inline-block;
-				padding: 3px 5px;
-				border: 1px solid #1B6CB5;
-				border-radius: 3px;
-				background: #fff;
-				color: #1B6CB5;
+			div.login {
+				margin: 50px 0 0 0;
+				text-align:center;
+			}
+			div.checked-in {
+				padding: 20px;
+			}
+			img.badge {
+				float: left;
+				margin: 0 10px 10px 0;
 			}
 		</style>
 	</head>
@@ -234,10 +219,12 @@
 		<header>
 			<h1>Five Corners</h1>
 			<nav>
-				<a href="ajax.php?action=venues">refresh</a>
+				<a href="#">venues</a>
 			</nav>
+			<p>&nbsp;</p>
 		</header>
 		<section id="app-content">
+
 		</section>
 	</body>
 </html>
