@@ -82,35 +82,16 @@ switch($_GET['action']){
 		break;
 		
 	case 'checkin':
-		
-		echo '{
-
-    "checkins":[
-        {
-            "id":286939,
-            "user":{
-                "id":467,
-                "firstname":"Sarah",
-                "lastname:"Simmons",
-                "photo":"http://foursquare.com/userpix/467_1237171998.jpg",
-                "gender":"female"
-            },
-            venue:{
-                "id":44379,
-                "name":"Topshop",
-                "address":"478 Broadway",
-                "crossstreet":"at Broome",
-                "geolat":40.7215,
-                "geolong":-74.0001
-            },
-            "distance":2382,
-            "display":"Sarah S. @ Topshop",
-            "shout":"Just tried on a dress ...",
-            "created":"Thu, 21 May 09 18:09:22 +0000"
-        }
-    ]
-}';
 	
+		ini_set('display_errors',1);
+	
+		unset($_GET['action']);
+		
+		$checkin = $foursquareObj->post_checkin($_GET);
+		echo $checkin->responseText;
+		
+		break;
+				
 	default:
 		echo "no action";
 }

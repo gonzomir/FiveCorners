@@ -34,7 +34,7 @@
 									var v = venues.length;
 									for(i = 0; i<v; i++){
 										var venue = venues[i];
-										$ul.append('<li><h3>' + venue.name + '</h3><p>' + venue.address + ', ' + venue.city + '</p></li><a href="ajax.php?action=checkin&amp;venue=' + venue.id + '" class="checkin">checkin</a>');
+										$ul.append('<li><h3>' + venue.name + '</h3><p>' + venue.address + ', ' + venue.city + '</p></li><a href="ajax.php?action=checkin&amp;vid=' + venue.id + '" class="checkin">checkin</a>');
 									}
 				
 									$('body').append($ul);
@@ -83,8 +83,11 @@
 						dataType: 'json',
 						success: function(data, textStatus, XMLHttpRequest){
 								
-								//alert(XMLHttpRequest.status + '\n' + XMLHttpRequest.responseText);
 								this.parent('li').addClass('checked-in');
+								alert(data.checkin.message);
+								if(data.badges.length>0){
+									alert('Badge:' + data.badges.badge.name + '\n' + data.badges.badge.description);
+								}
 							
 							},
 						error: function(XMLHttpRequest, textStatus, errorThrown){
