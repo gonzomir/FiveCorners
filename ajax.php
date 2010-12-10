@@ -51,16 +51,6 @@ if( $_SESSION['oauth_token'] == '' || $_SESSION['oauth_token_secret'] == '' ){
 
 $foursquareObj = new EpiFoursquare($consumer_key, $consumer_secret, $_SESSION['oauth_token'], $_SESSION['oauth_token_secret']);
 
-/*
-try {
-   //Making a call to the API
-   $foursquareTest = $foursquareObj->get_user();
-   print_r($foursquareTest->response);
-} catch (Exception $e) {
-   echo "Error: " . $e;
-}
-*/
-
 switch($_GET['action']){
 	
 	case 'venues':
@@ -70,20 +60,9 @@ switch($_GET['action']){
 		$venues = $foursquareObj->get_venues($_GET);
 		echo $venues->responseText;
 		
-		/*
-		if($_GET['geolat']!='' && $_GET['geolong']!=''){
-			$q = '?geolat='.$_GET['geolat'].'&geolong='.$_GET['geolong'];
-		}
-		
-		$url = 'https://api.foursquare.com/v1/venues.json'.$q;
-		echo file_get_contents($url);
-		*/
-	
 		break;
 		
 	case 'checkin':
-	
-		ini_set('display_errors',1);
 	
 		unset($_GET['action']);
 		
@@ -93,7 +72,7 @@ switch($_GET['action']){
 		break;
 				
 	default:
-		echo "no action";
+		echo '{"error" : "no action"}';
 }
 
 ?>
