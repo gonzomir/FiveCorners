@@ -20,7 +20,7 @@
 			 			$('#app-content').attr('data-geolat', position.coords.latitude);
 			 			$('#app-content').attr('data-geolong', position.coords.longitude);
 			 			
-						var url = 'ajax.php?action=venues&geolat=' + position.coords.latitude + '&geolong=' + position.coords.longitude;
+						var url = 'ajax.php?action=venues&l=20&geolat=' + position.coords.latitude + '&geolong=' + position.coords.longitude;
 
 						
 						$.ajax({
