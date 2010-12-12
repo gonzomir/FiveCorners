@@ -4,6 +4,7 @@
 		<meta charset="UTF-8" />
 		<title>FiveCorners</title>
 		<meta name = "viewport" content = "width = device-width, height = device-height" />
+		<!-- link rel="apple-touch-icon" href="icon.png" / -->
 		<script type="text/javascript" src="jquery.js"></script>
 		<script type="text/javascript">
 
@@ -66,7 +67,8 @@
 
 									}
 									else{
-										alert(XMLHttpRequest.status + '\n' + XMLHttpRequest.responseText);
+										//alert(XMLHttpRequest.status + '\n' + XMLHttpRequest.responseText);
+										$('#app-content').html('<div class="error"><h2>HTTP status' + XMLHttpRequest.status + '</h2><p>" + XMLHttpRequest.responseText + '</p></div>');
 									}
 				
 								}
@@ -78,20 +80,27 @@
 					function (error) {
 						switch(error.code) {
 							case error.TIMEOUT:
-								alert ('Timeout');
+								//alert ('Timeout');
+								$('#app-content').html('<div class="error">Timeout</div>');
 								break;
 							case error.POSITION_UNAVAILABLE:
-								alert ('Position unavailable');
+								//alert ('Position unavailable');
+								$('#app-content').html('<div class="error">Position unavailable, try again later. Some devices require GPS to be turned on.</div>');
 								break;
 							case error.PERMISSION_DENIED:
-								alert ('Permission denied');
+								//alert ('Permission denied');
+								$('#app-content').html('<div class="error">Permission denied. This is all about location, can\'t go without id. </div>');
 								break;
 							case error.UNKNOWN_ERROR:
-								alert ('Unknown error');
+								//alert ('Unknown error');
+								$('#app-content').html('<div class="error">Unknown error.</div>');
 								break;
 						}
 					}
 				);
+			}
+			else{
+				$('#app-content').html('<div class="error">Your browser does not support GeoLocation, sorry.</div>');
 			}
 		}
 			
@@ -129,7 +138,8 @@
 
 								}
 								else{
-									alert(XMLHttpRequest.status + '\n' + XMLHttpRequest.responseText);
+									//alert(XMLHttpRequest.status + '\n' + XMLHttpRequest.responseText);
+									$('#app-content').html('<div class="error"><h2>HTTP status' + XMLHttpRequest.status + '</h2><p>" + XMLHttpRequest.responseText + '</p></div>');
 								}
 			
 							}
@@ -231,6 +241,11 @@
 			img.badge {
 				float: left;
 				margin: 0 10px 10px 0;
+			}
+			div.error {
+				padding: 20px;
+				color: red;
+				font-weight: bold;
 			}
 		</style>
 	</head>
