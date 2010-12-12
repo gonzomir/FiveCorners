@@ -16,8 +16,8 @@ class EpiFoursquare extends EpiOAuth
   const EPIFOURSQUARE_AUTH_BASIC = 'basic';
   protected $requestTokenUrl= 'http://foursquare.com/oauth/request_token';
   protected $accessTokenUrl = 'http://foursquare.com/oauth/access_token';
-  protected $authorizeUrl   = 'http://foursquare.com/mobile/oauth/authorize';
-  protected $authenticateUrl= 'http://foursquare.com/mobile/oauth/authenticate'; // In case four square implements sign in with like Twitter
+  protected $authorizeUrl   = 'http://foursquare.com/mobile/oauth/authenticate';
+//  protected $authenticateUrl= 'http://foursquare.com/mobile/oauth/authenticate'; // In case four square implements sign in with like Twitter
   protected $apiUrl         = 'http://api.foursquare.com';
   protected $userAgent      = 'EpiFoursquare (http://github.com/jmathai/foursquare-async/tree/) FiveCorners 0.1';
   protected $apiVersion     = 'v1';

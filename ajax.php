@@ -11,7 +11,7 @@ require_once('oAuth/EpiFoursquare.php');
 
 session_start();
 
-if( $_SESSION['oauth_token'] == '' || $_SESSION['oauth_token_secret'] == '' ){
+if( $_SESSION['access_token'] == '' || $_SESSION['access_token_secret'] == '' ){
 
 	$foursquareObj = new EpiFoursquare($consumer_key, $consumer_secret);
 
@@ -29,7 +29,7 @@ if( $_SESSION['oauth_token'] == '' || $_SESSION['oauth_token_secret'] == '' ){
 		
 		header('HTTP/1.1 401 Unauthorized');
 		
-		echo $loginurl; //json_encode( array("url" => $loginurl) );
+		echo json_encode( array( 'loginurl' => $loginurl ) ); //json_encode( array("url" => $loginurl) );
 		
 		exit();
 		
@@ -39,8 +39,8 @@ if( $_SESSION['oauth_token'] == '' || $_SESSION['oauth_token_secret'] == '' ){
 		$foursquareObj->setToken($_REQUEST['oauth_token'],$_SESSION['secret']);
 		$token = $foursquareObj->getAccessToken();
 
-		$_SESSION['oauth_token'] = $token->oauth_token;
-		$_SESSION['oauth_token_secret'] = $token->oauth_token_secret;
+		$_SESSION['access_token'] = $token->oauth_token;
+		$_SESSION['access_token_secret'] = $token->oauth_token_secret;
 		
 		header('Location:index.html');
 		exit();
@@ -49,7 +49,7 @@ if( $_SESSION['oauth_token'] == '' || $_SESSION['oauth_token_secret'] == '' ){
 
 }
 
-$foursquareObj = new EpiFoursquare($consumer_key, $consumer_secret, $_SESSION['oauth_token'], $_SESSION['oauth_token_secret']);
+$foursquareObj = new EpiFoursquare($consumer_key, $consumer_secret, $_SESSION['access_token'], $_SESSION['access_token_secret']);
 
 switch($_GET['action']){
 	

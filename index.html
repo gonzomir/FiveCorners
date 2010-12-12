@@ -30,29 +30,39 @@
 									
 									//alert(XMLHttpRequest.status + '\n' + XMLHttpRequest.responseText);
 									
-									var ul = document.createElement('ul');
-									ul.id = 'venues';
-									var $ul = $(ul);
-							
-									var venues = data.groups[0].venues;
-							
-									var v = venues.length;
+									var groups = data.groups.length;
 									
-									//$('#app-content').append('<p>'+data.groups[0].venues.toString()+'</p>');
+									//alert(groups);
 									
-									for(i = 0; i<v; i++){
-										var venue = venues[i];
-										$ul.append('<li><h3>' + venue.name + '</h3><p>' + venue.address + ', ' + venue.city + '</p><nav><a href="ajax.php?action=checkin&amp;vid=' + venue.id + '" class="checkin">checkin</a></nav></li>');
-									}
+									for (g = 0; g<groups; g++){
+										
+										$('#app-content').append('<h2>' + data.groups[g].type + '</h2>');
+										
+										var venues = data.groups[g].venues;
+							
+										var v = venues.length;
+									
+										//$('#app-content').append('<p>'+data.groups[0].venues.toString()+'</p>');
+									
+										var ul = document.createElement('ul');
+										var $ul = $(ul);
+									
+										for(i = 0; i<v; i++){
+											var venue = venues[i];
+											$ul.append('<li><h3>' + venue.name + '</h3><p>' + venue.address + ', ' + venue.city + '</p><nav><a href="ajax.php?action=checkin&amp;vid=' + venue.id + '" class="checkin">checkin</a></nav></li>');
+										}
 				
-									$('#app-content').append($ul);
+										$('#app-content').append($ul);
+									}
 								
 								},
 							error: function(XMLHttpRequest, textStatus, errorThrown){
 
 									if(XMLHttpRequest.status == 401){
 
-										$('#app-content').append('<div class="login"><a href="' + XMLHttpRequest.responseText + '">Login Via Foursquare</a></div>');
+										var data = $.parseJSON( XMLHttpRequest.responseText );
+										//$('#app-content').append('<div class="login"><a href="' + data.loginurl + '">Login Via Foursquare</a></div>');
+										document.location = data.loginurl;
 
 									}
 									else{
@@ -113,8 +123,9 @@
 
 								if(XMLHttpRequest.status == 401){
 
-									$('#app-content').html('');
-									$('#app-content ').append('<div class="login"><a href="' + XMLHttpRequest.responseText + '">Login Via Foursquare</a></div>');
+										var data = $.parseJSON( XMLHttpRequest.responseText );
+										//$('#app-content').append('<div class="login"><a href="' + data.loginurl + '">Login Via Foursquare</a></div>');
+										document.location = data.loginurl;
 
 								}
 								else{
@@ -145,6 +156,7 @@
 				color: #333;
 				font-size: 16px;
 				font-family: "Gil Sans", "Helvetika", sans-serif;
+				line-height: 1.2em;
 				text-align: left;
 			}
 			header {
@@ -158,6 +170,17 @@
 				font-weight: bold;
 				text-align: left;
 				margin: 0;
+			}
+			h2 {
+				font-size: 24px;
+				font-weight: bold;
+				text-align: left;
+				margin: 1em 20px .8em 20px;
+				color: #1B6CB5;
+			}
+			h3 {
+				font-size: 20px;
+				margin:0;
 			}
 			nav {
 				display: block;
@@ -194,10 +217,6 @@
 			}
 			#app-content ul li p, header p {
 				margin: 0;
-			}
-			h3 {
-				font-size: 18px;
-				margin:0;
 			}
 			#app-content ul li nav {
 				margin-top: -33px;
