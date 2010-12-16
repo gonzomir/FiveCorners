@@ -53,6 +53,15 @@ $foursquareObj = new EpiFoursquare($consumer_key, $consumer_secret, $_SESSION['a
 
 switch($_GET['action']){
 	
+	case 'user':
+	
+		unset($_GET['action']);
+		
+		$venues = $foursquareObj->get_user();
+		echo $venues->responseText;
+		
+		break;
+		
 	case 'venues':
 	
 		unset($_GET['action']);

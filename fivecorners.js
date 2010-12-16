@@ -6,7 +6,7 @@ function getVenues(){
 			function (position) {  
 
 				$('#app-content').html('');
-				$('header p').html('Position: ' +  position.coords.latitude + ', ' + position.coords.longitude);
+				$('header span.location').html('[' +  position.coords.latitude + ', ' + position.coords.longitude + ']');
 	 			
 	 			$('#app-content').attr('data-geolat', position.coords.latitude);
 	 			$('#app-content').attr('data-geolong', position.coords.longitude);
@@ -93,6 +93,46 @@ function getVenues(){
 		$('#app-content').html('<div class="error">Your browser does not support GeoLocation, sorry.</div>');
 	}
 }
+
+function getUser(){
+
+		$.ajax({
+			url: 'ajax.php?action=user', 
+			dataType: 'json',
+			success: function(data, textStatus, XMLHttpRequest){
+					
+					var nameparts = [];
+					if(data.user.firstname != ''){
+						nameparts.push(data.user.firstname);
+					}
+					if(data.user.lastname != ''){
+						nameparts.push(data.user.lastname);
+					}
+					if(nameparts.length<2 && data.user.twitter){
+						nameparts.push('@' + data.user.twitter);
+					}
+					$('header span.user').html(nameparts.join(' ') + ' (' + data.user.homecity + ')');
+					
+					getVenues();
+				
+				},
+			error: function(XMLHttpRequest, textStatus, errorThrown){
+
+					if(XMLHttpRequest.status == 401){
+
+						var data = $.parseJSON( XMLHttpRequest.responseText );
+						document.location = data.loginurl;
+
+					}
+					else{
+						$('#app-content').html('<div class="error"><h3>HTTP status ' + XMLHttpRequest.status + '</h3><p>' + XMLHttpRequest.responseText + '</p></div>');
+					}
+
+				}
+
+		});
+			
+}
 	
 $(document).ready(function(){
 
@@ -142,7 +182,8 @@ $(document).ready(function(){
 	
 	$('header nav a').click(getVenues);
 	
-	getVenues();
+	getUser();
+	//getVenues();
 
 
 });

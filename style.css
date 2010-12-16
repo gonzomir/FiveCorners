@@ -49,6 +49,11 @@ a {
 p {
 	margin-bottom: 1.2em;
 }
+
+header span.user {
+	font-weight: bold;
+}
+
 #app-content {
 	display: block;
 	padding: 20px 0;
