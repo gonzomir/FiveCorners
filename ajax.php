@@ -73,6 +73,7 @@ switch($_GET['action']){
 		unset($_GET['action']);
 		
 		$checkin = $foursquareObj->post_checkin($_GET);
+		//print_r(json_decode(stripslashes($checkin->responseText)));
 		echo $checkin->responseText;
 		
 		break;

@@ -1,6 +1,4 @@
-#
-#version 20101219
-#
+#version 20101220v1
 CACHE MANIFEST
 jquery.js
 fivecorners.js

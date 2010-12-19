@@ -159,12 +159,16 @@ $(document).ready(function(){
 	
 		var $div = $('<div class="checked-in"></div>');
 		$div.append('<h3>' + data.checkin.message + '</h3>');
+		
 		if(data.checkin.mayor){
 			$div.append('<p>' + data.checkin.mayor.message + '</p>');
 		}
 	
-		if(data.checkin.badges){
-			$div.append('<img class="badge" alt="" src="' + data.checkin.badges.badge.icon + '" /><h3>You just won ' + data.checkin.badges.badge.name + ' badge.</h3><p>' + data.checkin.badges.badge.description + '</p>');
+		if(data.checkin.badges && data.checkin.badges.length>0){
+			var b = data.checkin.badges.length;
+			for(i=0;i<b;i++){
+				$div.append('<img class="badge" alt="" src="' + data.checkin.badges[i].icon + '" /><h3>You just won ' + data.checkin.badges[i].name + ' badge.</h3><p>' + data.checkin.badges[i].description + '</p>');
+			}
 		}
 	
 		$('#app-content').append($div);
