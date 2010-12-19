@@ -74,7 +74,7 @@ var fc = (function () {
 	
 		checkin: function(venue){
 
-			var url = 'ajax.php?action=checkin&venue=' + venue;
+			var url = 'ajax.php?action=checkin&vid=' + venue;
 
 			$.ajax({
 				url: url, 
