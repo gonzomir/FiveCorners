@@ -27,9 +27,13 @@ if( $_SESSION['access_token'] == '' || $_SESSION['access_token_secret'] == '' ){
 		  //If there is a problem throw an exception
 		}
 		
-		header('HTTP/1.1 401 Unauthorized');
-		
-		echo json_encode( array( 'loginurl' => $loginurl ) ); //json_encode( array("url" => $loginurl) );
+		if( $_SERVER['X_REQUESTED_WITH'] == 'XMLHttpRequest' ){
+			header('HTTP/1.1 401 Unauthorized');
+			echo json_encode( array( 'loginurl' => $loginurl ) ); //json_encode( array("url" => $loginurl) );
+		}
+		else{
+			header('Location:'.$loginurl);
+		}
 		
 		exit();
 		
@@ -55,8 +59,6 @@ switch($_GET['action']){
 	
 	case 'user':
 	
-		unset($_GET['action']);
-		
 		$venues = $foursquareObj->get_user();
 		echo $venues->responseText;
 		
@@ -81,7 +83,9 @@ switch($_GET['action']){
 		break;
 				
 	default:
-		echo '{"error" : "no action"}';
+		header('HTTP/1.1 501 Unimplemented');
+		echo 'Method not implemented';
+
 }
 
 ?>
