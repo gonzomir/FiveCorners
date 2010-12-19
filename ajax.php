@@ -26,15 +26,10 @@ if( $_SESSION['access_token'] == '' || $_SESSION['access_token_secret'] == '' ){
 		} catch (Execption $e) {
 		  //If there is a problem throw an exception
 		}
-		
-		if( $_SERVER['X_REQUESTED_WITH'] == 'XMLHttpRequest' ){
-			header('HTTP/1.1 401 Unauthorized');
-			echo json_encode( array( 'loginurl' => $loginurl ) ); //json_encode( array("url" => $loginurl) );
-		}
-		else{
-			header('Location:'.$loginurl);
-		}
-		
+
+		header('HTTP/1.1 401 Unauthorized');
+		echo json_encode( array( 'loginurl' => $loginurl ) );
+
 		exit();
 		
 	}
