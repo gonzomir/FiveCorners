@@ -18,14 +18,14 @@ var fc = (function () {
 
 						$(document).trigger("data:position", position);
 					
-						var url = 'ajax.php?action=venues&l=20&geolat=' + position.coords.latitude + '&geolong=' + position.coords.longitude;
+						var url = 'ajax.php?action=venues&limit=20&ll=' + position.coords.latitude + ',' + position.coords.longitude + '&llAcc=' + position.coords.accuracy;
 				
 						$.ajax({
 							url: url, 
 							dataType: 'json',
 							success: function(data, textStatus, XMLHttpRequest){
 							
-									$(document).trigger("data:venues", data);
+									$(document).trigger("data:venues", data.response);
 
 								},
 							error: function(XMLHttpRequest, textStatus, errorThrown){
@@ -59,7 +59,7 @@ var fc = (function () {
 				dataType: 'json',
 				success: function(data, textStatus, XMLHttpRequest){
 				
-						$(document).trigger("data:user", data);
+						$(document).trigger("data:user", data.response);
 
 					},
 				error: function(XMLHttpRequest, textStatus, errorThrown){
@@ -74,7 +74,7 @@ var fc = (function () {
 	
 		checkin: function(venue){
 
-			var url = 'ajax.php?action=checkin&vid=' + venue;
+			var url = 'ajax.php?action=checkin&broadcast=public&venueId=' + venue;
 
 			$.ajax({
 				url: url, 
@@ -103,15 +103,15 @@ $(document).ready(function(){
 
 		var nameparts = [];
 		if(data.user.firstname != ''){
-			nameparts.push(data.user.firstname);
+			nameparts.push(data.user.firstName);
 		}
 		if(data.user.lastname != ''){
-			nameparts.push(data.user.lastname);
+			nameparts.push(data.user.lastName);
 		}
-		if(nameparts.length<2 && data.user.twitter){
-			nameparts.push('@' + data.user.twitter);
+		if(nameparts.length<2 && data.user.contact.twitter){
+			nameparts.push('@' + data.user.contact.twitter);
 		}
-		$('header span.user').html(nameparts.join(' ') + ' (' + data.user.homecity + ')');
+		$('header span.user').html(nameparts.join(' ') + ' (' + data.user.homeCity + ')');
 
 		$(document).trigger("action:getvenues");
 
@@ -128,6 +128,11 @@ $(document).ready(function(){
 	$(document).bind("data:venues", function(e, data){
 
 		$('#app-content').html('');
+		
+		if( data.error ){
+			$(document).trigger("error:other", data.error);
+			return false;
+		}
 
 		var groups = data.groups.length;
 	
@@ -135,16 +140,19 @@ $(document).ready(function(){
 		
 			$('#app-content').append('<h2>' + data.groups[g].type + '</h2>');
 			
-			var venues = data.groups[g].venues;
+			var venues = data.groups[g].items;
 
 			var v = venues.length;
 	
 			var ul = document.createElement('ul');
 			var $ul = $(ul);
 	
-			for(i = 0; i<v; i++){
+			for(var i = 0; i < v; i += 1){
 				var venue = venues[i];
-				$ul.append('<li><h3>' + venue.name + '</h3><p>' + venue.address + ', ' + venue.city + '</p><nav><a href="ajax.php?action=checkin&amp;vid=' + venue.id + '" data-action="action:checkin" data-venue="' + venue.id + '">checkin</a></nav></li>');
+				var address = [];
+				if (venue.location.address) address.push(venue.location.address);
+				if (venue.location.city) address.push(venue.location.city);
+				$ul.append('<li><h3>' + venue.name + '</h3><p>' + address.join(', ') + ' &nbsp;</p><nav><a href="ajax.php?action=checkin&amp;vid=' + venue.id + '" data-action="action:checkin" data-venue="' + venue.id + '">checkin</a></nav></li>');
 			}
 
 			$('#app-content').append($ul);
@@ -157,20 +165,48 @@ $(document).ready(function(){
 
 		$('#app-content').html('');
 	
-		var $div = $('<div class="checked-in"></div>');
-		$div.append('<h3>' + data.checkin.message + '</h3>');
-		
-		if(data.checkin.mayor){
-			$div.append('<p>' + data.checkin.mayor.message + '</p>');
+		if( data.meta.code!=200 ){
+			$(document).trigger("error:other", data.error);
+			return false;
 		}
-	
-		if(data.checkin.badges && data.checkin.badges.length>0){
-			var b = data.checkin.badges.length;
-			for(i=0;i<b;i++){
-				$div.append('<img class="badge" alt="" src="' + data.checkin.badges[i].icon + '" /><h3>You just won ' + data.checkin.badges[i].name + ' badge.</h3><p>' + data.checkin.badges[i].description + '</p>');
+
+		var $div = $('<div class="checked-in"></div>');
+		
+		var checkin = {};
+		checkin.badges = [];
+		
+		var notifications = data.notifications;
+		var n = notifications.length;
+		for( var i = 0; i < n; i += 1 ){
+			var notification = notifications[i];
+			switch(notification.type){
+				case "message":
+					checkin.message = notification.item.message;
+					break;
+				case "mayorship":
+					checkin.mayor = notification.item.message;
+					break;
+				case "badge":
+					checkin.badges.push(notification.item);
+					break;
 			}
 		}
+		
+		$div.append('<h3>' + checkin.message + '</h3>');
+		
+		if(checkin.mayor){
+			$div.append('<p>' + checkin.mayor + '</p>');
+		}
 	
+		/*
+		if(checkin.badges && checkin.badges.length>0){
+			var b = checkin.badges.length;
+			for( var i = 0; i < b; i += 1 ){
+				$div.append('<img class="badge" alt="" src="' + checkin.badges[i].image + '" /><h3>You\'ve unlocked  ' + checkin.badges[i].name + '</h3><p>' + checkin.badges[i].description + '</p>');
+			}
+		}
+		*/
+
 		$('#app-content').append($div);
 
 	});

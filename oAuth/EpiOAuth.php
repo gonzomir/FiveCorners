@@ -12,7 +12,7 @@ class EpiOAuth
   protected $token;
   protected $tokenSecret;
   protected $signatureMethod;
-  protected $debug = false;
+  protected $debug = true;
   protected $useSSL = false;
   protected $followLocation = false;
   protected $headers = array();

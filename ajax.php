@@ -1,61 +1,83 @@
 <?php
-ini_set('error_reporting', E_ALL);
-ini_set('display_errors',0);
+ini_set('error_reporting', E_ALL & ~E_NOTICE);
+ini_set('display_errors',1);
 
 $consumer_key = "KWYHM31YGHLDECVLA0AR0D4S5VWRBS0YD3IT5KDXDJCJBOZA";
 $consumer_secret = "POL2G2MIGYF54XMYILXVKBO5MBVX4DM5CEU3ONFGVZ50R5YO";
 
+$redirectUri = 'http://greatgonzo.net/fivecorners/ajax.php';
+
 require_once('oAuth/EpiCurl.php');
-require_once('oAuth/EpiOAuth.php');
 require_once('oAuth/EpiFoursquare.php');
 
-session_start();
+$foursquareObj = new EpiFoursquare($consumer_key, $consumer_secret);
 
-if( $_SESSION['access_token'] == '' || $_SESSION['access_token_secret'] == '' ){
+if( !isset($_COOKIE['access_token']) &&  !isset($_GET['code'])  ){
 
-	$foursquareObj = new EpiFoursquare($consumer_key, $consumer_secret);
-
-	if( $_SESSION['secret'] == '' || $_REQUEST['oauth_token'] == '' ){
-		$loginurl = "";
-
-		//Includes the foursquare-asyc library files
-		try{
-		  $results = $foursquareObj->getAuthorizeUrl();
-		  $loginurl = $results['url'] . "?oauth_token=" . $results['oauth_token'];
-		  $_SESSION['secret'] = $results['oauth_token_secret'];
-		} catch (Execption $e) {
-		  //If there is a problem throw an exception
-		}
-
+	$loginurl = "";
+	
+	//Includes the foursquare-asyc library files
+	try{
+		$loginurl = $foursquareObj->getAuthorizeUrl($redirectUri);
+		$_SESSION['secret'] = $results['oauth_token_secret'];
 		header('HTTP/1.1 401 Unauthorized');
 		echo json_encode( array( 'loginurl' => $loginurl ) );
-
-		exit();
-		
+	} catch (EpiFoursquareBadRequestException $e){
+		header('HTTP/1.1 400 Bad Request');
+		echo $e->getMessage();
+	} catch (EpiFoursquareNotAuthorizedException $e){
+		header('HTTP/1.1 401 Unauthorized');
+		echo $e->getMessage();
+	} catch (EpiFoursquareException $e){
+		header('HTTP/1.1 '.$e->getCode());
+		echo $e->getCode().'  '.$e->getMessage();
+	} catch (Exception $e) {
+		header('HTTP/1.1 500 Internal Server Error');
+		echo $e->getCode().'  '.$e->getMessage();
 	}
-	else{
 
-		$foursquareObj->setToken($_REQUEST['oauth_token'],$_SESSION['secret']);
-		$token = $foursquareObj->getAccessToken();
-
-		$_SESSION['access_token'] = $token->oauth_token;
-		$_SESSION['access_token_secret'] = $token->oauth_token_secret;
-		
-		header('Location:index.html');
-		exit();
-
-	}
+	exit();
 
 }
 
-$foursquareObj = new EpiFoursquare($consumer_key, $consumer_secret, $_SESSION['access_token'], $_SESSION['access_token_secret']);
+if( !isset($_COOKIE['access_token']) ) {
+
+	try{
+
+		$token = $foursquareObj->getAccessToken($_GET['code'], $redirectUri);
+
+		setcookie('access_token', $token->access_token, time() + 30*24*3600);
+		$_COOKIE['access_token'] = $token->access_token;
+
+		header('Location:index.html');
+
+	} catch (EpiFoursquareBadRequestException $e){
+		header('HTTP/1.1 400 Bad Request');
+		echo $e->getMessage();
+	} catch (EpiFoursquareNotAuthorizedException $e){
+		header('HTTP/1.1 401 Unauthorized');
+		echo $e->getMessage();
+	} catch (EpiFoursquareException $e){
+		header('HTTP/1.1 '.$e->getCode());
+		echo $e->getCode().'  '.$e->getMessage();
+	} catch (Exception $e) {
+		header('HTTP/1.1 500 Internal Server Error');
+		echo $e->getCode().'  '.$e->getMessage();
+	}
+	
+	exit();
+
+
+}
+
+$foursquareObj->setAccessToken($_COOKIE['access_token']);
 
 switch($_GET['action']){
 	
 	case 'user':
 	
-		$venues = $foursquareObj->get_user();
-		echo $venues->responseText;
+		$user = $foursquareObj->get('/users/self');
+		echo $user->responseText;
 		
 		break;
 		
@@ -63,7 +85,7 @@ switch($_GET['action']){
 	
 		unset($_GET['action']);
 		
-		$venues = $foursquareObj->get_venues($_GET);
+		$venues = $foursquareObj->get('/venues/search',$_GET);
 		echo $venues->responseText;
 		
 		break;
@@ -72,7 +94,7 @@ switch($_GET['action']){
 		
 		unset($_GET['action']);
 		
-		$checkin = $foursquareObj->post_checkin($_GET);
+		$checkin = $foursquareObj->post('/checkins/add',$_GET);
 		//print_r(json_decode(stripslashes($checkin->responseText)));
 		echo $checkin->responseText;
 		
