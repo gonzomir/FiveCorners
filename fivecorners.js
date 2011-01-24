@@ -152,7 +152,7 @@ $(document).ready(function(){
 				var address = [];
 				if (venue.location.address) address.push(venue.location.address);
 				if (venue.location.city) address.push(venue.location.city);
-				$ul.append('<li><h3>' + venue.name + '</h3><p>' + address.join(', ') + ' &nbsp;</p><nav><a href="ajax.php?action=checkin&amp;vid=' + venue.id + '" data-action="action:checkin" data-venue="' + venue.id + '">checkin</a></nav></li>');
+				$ul.append('<li><h3>' + venue.name + '</h3><p>' + address.join(', ') + ' &nbsp;</p><menu><a href="ajax.php?action=checkin&amp;vid=' + venue.id + '" data-action="action:checkin" data-venue="' + venue.id + '">checkin</a><ul><li><a href="ajax.php?action=checkin&amp;vid=' + venue.id + '" data-action="action:shoutcheckin" data-venue="' + venue.id + '">add shout</a></li><li><a href="ajax.php?action=tips&amp;vid=' + venue.id + '" data-action="action:gettips" data-venue="' + venue.id + '">tips</a></li></ul></menu></li>');
 			}
 
 			$('#app-content').append($ul);
@@ -213,7 +213,7 @@ $(document).ready(function(){
 	
 	$(document).bind("error:http", function(e, XMLHttpRequest){
 
-		if(XMLHttpRequest.status == 401){
+		if(XMLHttpRequest.status == 401 || XMLHttpRequest.status == 403){
 
 			var data = $.parseJSON( XMLHttpRequest.responseText );
 			document.location = data.loginurl;
@@ -251,6 +251,20 @@ $(document).ready(function(){
 
 		fc.getVenues();
 
+	});
+	
+
+	$('menu').live('click', function(e){
+		
+		$('menu ul:visible').not($('ul',this)).hide();
+		$('ul',this).toggle();
+	
+	});
+	
+	$('menu').live('blur', function(e){
+		
+		$('ul',this).hide();
+	
 	});
 	
 

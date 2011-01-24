@@ -10,7 +10,7 @@ body {
 }
 header {
 	display: block;
-	padding: 10px 20px;
+	padding: 10px 20px 0px 20px;
 	background: #0CBADF;
 	color: #fff;
 }
@@ -31,14 +31,17 @@ h3 {
 	font-size: 20px;
 	margin:0;
 }
-nav {
+nav, menu {
 	display: block;
 	float: right;
-	margin-top: -15px;
+	margin-top: -20px;
 }
-a {
+p {
+	margin-bottom: 1.2em;
+}
+a, button {
 	display: inline-block;
-	padding: 3px 5px;
+	padding: 5px 5px;
 	border: 1px solid #1B6CB5;
 	border-radius: 5px;
 	background: #fff;
@@ -46,10 +49,40 @@ a {
 	text-decoration: none;
 	font-weight: bold;
 }
-p {
-	margin-bottom: 1.2em;
-}
 
+header h1 {
+	width: 40%;
+}
+header nav {
+	float: none;
+	clear: both;
+	margin-top: 5px;
+}
+nav ul {
+	list-style-type: none;
+	overflow: hidden;
+	padding: 0;
+	margin: 0;
+}
+header nav li {
+	float:left;
+	margin: 0;
+	padding: 0;
+}
+header nav li a {
+	border-bottom: none;
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0;
+	font-size: 20px;
+	padding: 10px 15px;
+}
+header p {
+	float:right;
+	position: relative;
+	top: -20px;
+	width: 59%;
+	text-align: right;
+}
 header span.user {
 	font-weight: bold;
 }
@@ -72,20 +105,16 @@ header span.user {
 #app-content ul li p, header p {
 	margin: 0;
 }
-#app-content ul li nav {
-	margin-top: -33px;
-}
-div.login {
-	margin: 50px 0 0 0;
-	text-align:center;
-}
+
 div.checked-in {
 	padding: 20px;
 }
+
 img.badge {
 	float: left;
 	margin: 0 10px 10px 0;
 }
+
 div.error {
 	padding: 20px;
 	color: red;
@@ -94,3 +123,51 @@ div.error {
 div.error * {
 	color: inherit;
 }
+
+#app-content menu {
+	position: relative;
+	top: -30px;
+	margin: 0;
+	padding: 0 30px 0 0;
+	border: 1px solid #1B6CB5;
+	border-radius: 5px;
+}
+#app-content menu a {
+	border: none;
+	border-right: 1px solid #1B6CB5;
+	border-top-right-radius: 0;
+	border-bottom-right-radius: 0;
+}
+#app-content menu ul {
+	display: none;
+	position: absolute;
+	top: 100%;
+	left: -1px;
+	z-index: 100;
+	width: 100%;
+	margin: 0;
+	margin-top: -5px;
+	padding: 5px 0;
+	border: 1px solid #1B6CB5;
+	border-top: none;
+	border-bottom-left-radius: 5px;
+	border-bottom-right-radius: 5px;
+	list-style-type: none;
+	background: #fff;
+}
+#app-content menu:hover ul {
+/*	display: block;*/
+}
+#app-content menu ul li {
+	margin: 0;
+	padding: 0;
+	border: none;
+	border-top: 1px solid #1B6CB5;
+}
+#app-content menu ul a {
+	display: block;
+	border: none;
+	border-radius: 0;
+	margin: 0;
+}
+

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html manifest="fivecorners.manifest">
+<html>
 	<head>
 		<meta charset="UTF-8" />
 		<title>Five Corners</title>
@@ -26,10 +26,13 @@
 	<body>
 		<header>
 			<h1>Five Corners</h1>
+			<p><span class="user"></span><br /><span class="location"></span></p>
 			<nav>
-				<a href="#" data-action="action:getvenues">venues</a>
+				<ul>
+					<li><a href="#" data-action="action:getvenues">venues</a></li>
+					<li><a href="#" data-action="action:getfrends">friends</a></li>
+				</ul>
 			</nav>
-			<p><span class="user"></span>&nbsp;<span class="location"></span></p>
 		</header>
 		<section id="app-content">
 
