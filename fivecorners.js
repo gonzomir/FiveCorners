@@ -127,7 +127,7 @@ $(document).ready(function(){
 	
 	$(document).bind("data:venues", function(e, data){
 
-		$('#app-content').html('');
+		$('#venues-list').html('');
 		
 		if( data.error ){
 			$(document).trigger("error:other", data.error);
@@ -138,7 +138,7 @@ $(document).ready(function(){
 	
 		for (g = 0; g<groups; g++){
 		
-			$('#app-content').append('<h2>' + data.groups[g].type + '</h2>');
+			$('#venues-list').append('<h2>' + data.groups[g].type + '</h2>');
 			
 			var venues = data.groups[g].items;
 
@@ -155,7 +155,9 @@ $(document).ready(function(){
 				$ul.append('<li><h3>' + venue.name + '</h3><p>' + address.join(', ') + ' &nbsp;</p><menu><a href="ajax.php?action=checkin&amp;vid=' + venue.id + '" data-action="action:checkin" data-venue="' + venue.id + '">checkin</a><ul><li><a href="ajax.php?action=checkin&amp;vid=' + venue.id + '" data-action="action:shoutcheckin" data-venue="' + venue.id + '">add shout</a></li><li><a href="ajax.php?action=tips&amp;vid=' + venue.id + '" data-action="action:gettips" data-venue="' + venue.id + '">tips</a></li></ul></menu></li>');
 			}
 
-			$('#app-content').append($ul);
+			$('#venues-list').append($ul);
+			$('#app-content section:visible').not('#venues-list').hide();
+			$('#venues-list').show();
 
 		}
 
@@ -163,7 +165,7 @@ $(document).ready(function(){
 	
 	$(document).bind("action:checkedin", function(e, data){
 
-		$('#app-content').html('');
+		$('#venues-list').html('');
 	
 		if( data.meta.code!=200 ){
 			$(document).trigger("error:other", data.error);
@@ -207,7 +209,9 @@ $(document).ready(function(){
 		}
 		*/
 
-		$('#app-content').append($div);
+		$('#message').append($div);
+		$('#app-content section:visible').not('#venues-list').hide();
+		$('#venues-list').show();
 
 	});
 	
@@ -220,14 +224,18 @@ $(document).ready(function(){
 
 		}
 		else{
-			$('#app-content').html('<div class="error"><h3>HTTP status ' + XMLHttpRequest.status + '</h3><p>' + XMLHttpRequest.responseText + '</p></div>');
+			$('#message').html('<div class="error"><h3>HTTP status ' + XMLHttpRequest.status + '</h3><p>' + XMLHttpRequest.responseText + '</p></div>');
+			$('#app-content section:visible').not('#message').hide();
+			$('#message').show();
 		}
 
 	});
 
 	$(document).bind("error:other", function(e, error_message){
 
-		$('#app-content').html('<div class="error"><h3>Error</h3><p>' + error_message + '</p></div>');
+		$('#message').html('<div class="error"><h3>Error</h3><p>' + error_message + '</p></div>');
+		$('#app-content section:visible').not('#message').hide();
+		$('#message').show();
 
 	});
 	
@@ -265,6 +273,12 @@ $(document).ready(function(){
 		
 		$('ul',this).hide();
 	
+	});
+	
+	$('header nav a').click(function(){
+		var $tab = $(this.hash);
+		$('#app-content section:visible').not($tab).hide();
+		$tab.show();
 	});
 	
 
