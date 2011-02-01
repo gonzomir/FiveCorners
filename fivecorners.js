@@ -7,35 +7,24 @@ var fc = (function () {
 			'Timeout'
 		];
 	
+	var currentPosition = {}, lastPosition = {};
+	
 	return {
 
-		getVenues: function(){
+		getPosition: function(){
 
 			if (navigator.geolocation){
-				navigator.geolocation.getCurrentPosition(
+			
+				var me = this;
+			
+				this.posWatch = navigator.geolocation.watchPosition(
 		
 					function (position) {  
 
+						lastPosition = currentPosition;
+						currentPosition = position;
 						$(document).trigger("data:position", position);
 					
-						var url = 'ajax.php?action=venues&limit=20&ll=' + position.coords.latitude + ',' + position.coords.longitude + '&llAcc=' + position.coords.accuracy;
-				
-						$.ajax({
-							url: url, 
-							dataType: 'json',
-							success: function(data, textStatus, XMLHttpRequest){
-							
-									$(document).trigger("data:venues", data.response);
-
-								},
-							error: function(XMLHttpRequest, textStatus, errorThrown){
-
-									$(document).trigger("error:http", XMLHttpRequest);
-
-								}
-		
-						});
-				
 					},
 					// next function is the error callback
 					function (error) {
@@ -50,6 +39,33 @@ var fc = (function () {
 			else{
 				$(document).trigger("error:other", 'Your browser does not support GeoLocation, sorry.');
 			}
+		},
+		
+		stopPosWatch: function(){
+			if (navigator.geolocation){
+				navigator.geolocation.clearWatch(this.posWatch);
+			}
+		},
+		
+		getVenues: function(){
+			var url = 'ajax.php?action=venues&limit=30&ll=' + currentPosition.coords.latitude + ',' + currentPosition.coords.longitude + '&llAcc=' + currentPosition.coords.accuracy;
+	
+			$.ajax({
+				url: url, 
+				dataType: 'json',
+				success: function(data, textStatus, XMLHttpRequest){
+				
+						$(document).trigger("data:venues", data.response);
+
+					},
+				error: function(XMLHttpRequest, textStatus, errorThrown){
+
+						$(document).trigger("error:http", XMLHttpRequest);
+
+					}
+
+			});
+	
 		},
 
 		getUser: function(){
@@ -72,9 +88,12 @@ var fc = (function () {
 		
 		},
 	
-		checkin: function(venue){
+		checkin: function(venue, shout){
 
-			var url = 'ajax.php?action=checkin&broadcast=public&venueId=' + venue;
+			var url = 'ajax.php?action=checkin&broadcast=public&venueId=' + venue + '&ll=' + currentPosition.coords.latitude + ',' + currentPosition.coords.longitude + '&llAcc=' + currentPosition.coords.accuracy;
+			if(shout){
+				url = url + '&shout=' + encodeURIComponent(shout);
+			}
 
 			$.ajax({
 				url: url, 
@@ -113,15 +132,17 @@ $(document).ready(function(){
 		}
 		$('header span.user').html(nameparts.join(' ') + ' (' + data.user.homeCity + ')');
 
-		$(document).trigger("action:getvenues");
+		$(document).trigger("action:getposition");
 
 	});
 
 	$(document).bind("data:position",function(e, position){
 
-		$('header span.location').html('[' +  position.coords.latitude + ', ' + position.coords.longitude + ']');
-		$('#app-content').data('geolat', position.coords.latitude);
-		$('#app-content').data('geolong', position.coords.longitude);
+		$('header span.location').html('[' +  position.coords.latitude + ', ' + position.coords.longitude + ' (' + position.coords.accuracy + ')]');
+		if(position.coords.accuracy < 500){
+			fc.stopPosWatch();
+			fc.getVenues();
+		}
 
 	});
 	
@@ -136,9 +157,9 @@ $(document).ready(function(){
 
 		var groups = data.groups.length;
 	
-		for (g = 0; g<groups; g++){
+		for (var g = 0; g<groups; g++){
 		
-			$('#venues-list').append('<h2>' + data.groups[g].type + '</h2>');
+			$('#venues-list').append('<h2>' + data.groups[g].name + '</h2>');
 			
 			var venues = data.groups[g].items;
 
@@ -152,7 +173,12 @@ $(document).ready(function(){
 				var address = [];
 				if (venue.location.address) address.push(venue.location.address);
 				if (venue.location.city) address.push(venue.location.city);
-				$ul.append('<li><h3>' + venue.name + '</h3><p>' + address.join(', ') + ' &nbsp;</p><menu><a href="ajax.php?action=checkin&amp;vid=' + venue.id + '" data-action="action:checkin" data-venue="' + venue.id + '">checkin</a><ul><li><a href="ajax.php?action=checkin&amp;vid=' + venue.id + '" data-action="action:shoutcheckin" data-venue="' + venue.id + '">add shout</a></li><li><a href="ajax.php?action=tips&amp;vid=' + venue.id + '" data-action="action:gettips" data-venue="' + venue.id + '">tips</a></li></ul></menu></li>');
+				var categories = [];
+				var cats = venue.categories.length;
+				for(var c = 0; c < cats; c += 1){
+					categories.push(venue.categories[c].name);
+				}
+				$ul.append('<li><h3>' + venue.name + '</h3><p>' + categories.join(', ') + '&nbsp;</p><p>' + address.join(', ') + '&nbsp;</p><menu><a href="ajax.php?action=checkin&amp;vid=' + venue.id + '" data-action="action:checkin" data-venue="' + venue.id + '">checkin</a> ' + venue.hereNow.count + '<ul><li><a href="ajax.php?action=checkin&amp;vid=' + venue.id + '" data-action="action:shoutcheckin" data-venue="' + venue.id + '" data-vname="' + venue.name.replace('"','&quote;') + '">add shout</a></li><li><a href="ajax.php?action=tips&amp;vid=' + venue.id + '" data-action="action:gettips" data-venue="' + venue.id + '">tips</a></li></ul></menu></li>');
 			}
 
 			$('#venues-list').append($ul);
@@ -165,7 +191,7 @@ $(document).ready(function(){
 	
 	$(document).bind("action:checkedin", function(e, data){
 
-		$('#venues-list').html('');
+		$('#message').html('');
 	
 		if( data.meta.code!=200 ){
 			$(document).trigger("error:other", data.error);
@@ -210,8 +236,8 @@ $(document).ready(function(){
 		*/
 
 		$('#message').append($div);
-		$('#app-content section:visible').not('#venues-list').hide();
-		$('#venues-list').show();
+		$('#app-content section:visible').not('#message').hide();
+		$('#message').show();
 
 	});
 	
@@ -242,22 +268,66 @@ $(document).ready(function(){
 	$(document).delegate('a[data-action]', 'click', function(e){
 		
 		e.preventDefault();
+		e.stopPropagation();
 		var action = $(this).data('action');
-		$(document).trigger(action, this);
+		var data = $(this).data();
+		$(document).trigger(action, data);
+		return false;
+	
+	});
+	
+	$(document).delegate('form', 'submit', function(e){
+		
+		e.preventDefault();
+		e.stopPropagation();
+		var action = $(this).data('action');
+
+		var els = this.elements.length;
+		var el = {};
+		var data = {};
+		for(var i = 0; i < els; i += 1){
+			el = this.elements[i];
+			if(el.name!=''){
+				data[el.name] = el.value;
+			}
+		}
+		
+		$(document).trigger(action, data);
+		return false;
 	
 	});
 	
 
-	$(document).bind("action:checkin", function(e, el){
+	$(document).bind("action:checkin", function(e, data){
+
+		var venue = data.venue;
+		var shout = data.shout;
+		if(venue){
+			fc.checkin(venue, shout);
+		}
+
+	});
+	
+	$(document).bind("action:shoutcheckin", function(e, el){
 
 		var venue = $(el).data('venue');
-		fc.checkin(venue);
+		var vname = $(el).data('vname');
+		$('#venue').val(venue);
+		$('#shoutForm h2').html('Checkin to ' + vname);
+		$('#app-content section:visible').not('#shoutForm').hide();
+		$('#shoutForm').show();
 
 	});
-	
+
 	$(document).bind("action:getvenues", function(e, el){
 
 		fc.getVenues();
+
+	});
+	
+	$(document).bind("action:getposition", function(e, el){
+
+		fc.getPosition();
 
 	});
 	

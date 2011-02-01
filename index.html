@@ -26,7 +26,7 @@
 	<body>
 		<header>
 			<h1>Five Corners</h1>
-			<p><span class="user"></span><br /><span class="location"></span></p>
+			<p><span class="user"></span>&nbsp; <span class="location"></span></p>
 			<nav>
 				<ul>
 					<li><a href="#venues-list" data-action="action:getvenues">venues</a></li>
@@ -38,6 +38,14 @@
 			<section id="venues-list"></section>
 			<section id="friends-list"></section>
 			<section id="message"></section>
+			<section id="shoutForm">
+				<h2></h2>
+				<form action="#" data-action="action:checkin">
+					<input name="venue" id="venue" type="hidden" />
+					<textarea name="shout" id="shout"></textarea>
+					<button type="submit">checkin</button>
+				</form>
+			</section>
 		</div>
 	</body>
 </html>
