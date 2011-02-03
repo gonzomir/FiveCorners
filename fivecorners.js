@@ -48,6 +48,12 @@ var fc = (function () {
 		},
 		
 		getVenues: function(){
+			
+			if(!currentPosition.coords){
+				$(document).trigger("error:other", 'There is no position information available yet.');
+				return;
+			}
+			
 			var url = 'ajax.php?action=venues&limit=30&ll=' + currentPosition.coords.latitude + ',' + currentPosition.coords.longitude + '&llAcc=' + currentPosition.coords.accuracy;
 	
 			$.ajax({
@@ -142,6 +148,9 @@ $(document).ready(function(){
 		if(position.coords.accuracy < 500){
 			fc.stopPosWatch();
 			fc.getVenues();
+		}
+		else{
+			$(document).trigger("error:other", 'Although we got your position coordinates, the accuracy (' + position.coords.accuracy + 'm) is not good enough for the application to work correctly. Please, wait till we get a better position.');
 		}
 
 	});
