@@ -32,7 +32,8 @@ var fc = (function () {
 						$(document).trigger("error:other", error_message);
 					},
 					{
-						enableHighAccuracy: true
+						enableHighAccuracy: true,
+						timeout: 60000
 					}
 				);
 			}
@@ -150,7 +151,7 @@ $(document).ready(function(){
 			fc.getVenues();
 		}
 		else{
-			$(document).trigger("error:other", 'Although we got your position coordinates, the accuracy (' + position.coords.accuracy + 'm) is not good enough for the application to work correctly. Please, wait till we get a better position.');
+			$(document).trigger("error:other", 'Although we got your position coordinates, the accuracy (' + position.coords.accuracy + 'm) is not good enough for the application to work correctly. Please, wait till we get a better position. If you are in a hurry, we can show you <a href="ajax.php?action=venues" data-action="action:getvenues">venues nearby this position.</a>');
 		}
 
 	});
@@ -187,7 +188,7 @@ $(document).ready(function(){
 				for(var c = 0; c < cats; c += 1){
 					categories.push(venue.categories[c].name);
 				}
-				$ul.append('<li><h3>' + venue.name + '</h3><p>' + categories.join(', ') + '&nbsp;</p><p>' + address.join(', ') + '&nbsp;</p><menu><a href="ajax.php?action=checkin&amp;vid=' + venue.id + '" data-action="action:checkin" data-venue="' + venue.id + '">checkin</a> ' + venue.hereNow.count + '<ul><li><a href="ajax.php?action=checkin&amp;vid=' + venue.id + '" data-action="action:shoutcheckin" data-venue="' + venue.id + '" data-vname="' + venue.name.replace('"','&quote;') + '">add shout</a></li><li><a href="ajax.php?action=tips&amp;vid=' + venue.id + '" data-action="action:gettips" data-venue="' + venue.id + '">tips</a></li></ul></menu></li>');
+				$ul.append('<li><h3>' + venue.name + '</h3><p>' + categories.join(', ') + '; ' + venue.hereNow.count + ' people here</p><p>' + address.join(', ') + '&nbsp;</p><menu><a href="ajax.php?action=checkin&amp;vid=' + venue.id + '" data-action="action:checkin" data-venue="' + venue.id + '">checkin</a> &#9660; <ul><li><a href="ajax.php?action=checkin&amp;vid=' + venue.id + '" data-action="action:shoutcheckin" data-venue="' + venue.id + '" data-vname="' + venue.name.replace('"','&quote;') + '">add shout</a></li><li><a href="ajax.php?action=tips&amp;vid=' + venue.id + '" data-action="action:gettips" data-venue="' + venue.id + '">tips</a></li></ul></menu></li>');
 			}
 
 			$('#venues-list').append($ul);
@@ -343,21 +344,26 @@ $(document).ready(function(){
 
 	$('menu').live('click', function(e){
 		
+		e.stopPropagation();
 		$('menu ul:visible').not($('ul',this)).hide();
 		$('ul',this).toggle();
+		return false;
 	
 	});
-	
-	$('menu').live('blur', function(e){
-		
-		$('ul',this).hide();
-	
+
+	$(document).delegate('*', 'click', function(e){
+
+		if(e.target.nodeName != 'MENU'){
+			$('menu ul:visible').not($(e.target)).hide();
+		}
+
 	});
 	
 	$('header nav a').click(function(){
 		var $tab = $(this.hash);
 		$('#app-content section:visible').not($tab).hide();
 		$tab.show();
+		return false;
 	});
 	
 

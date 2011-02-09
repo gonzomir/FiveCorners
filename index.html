@@ -26,11 +26,18 @@
 	<body>
 		<header>
 			<h1>Five Corners</h1>
-			<p><span class="user"></span>&nbsp; <span class="location"></span></p>
+			<menu>
+				<a href="/" data-action="action:getposition">get position</a> &#9660;
+				<ul>
+					<li><a href="ajax.php?action=venues" data-action="action:getvenues">get venues</a></li>
+					<li><a href="ajax.php?action=friends" data-action="action:getfriends">get friends</a></li>
+				</ul>
+			</menu>
+			<p><span class="user"></span>&nbsp;<br /> <span class="location"></span>&nbsp;</p>
 			<nav>
 				<ul>
-					<li><a href="#venues-list" data-action="action:getvenues">venues</a></li>
-					<li><a href="#friends-list" data-action="action:getfrends">friends</a></li>
+					<li><a href="#venues-list">venues</a></li>
+					<li><a href="#friends-list">friends</a></li>
 				</ul>
 			</nav>
 		</header>

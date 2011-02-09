@@ -3,7 +3,7 @@ body {
 	padding: 0;
 	background: #fff;
 	color: #333;
-	font-size: 16px;
+	font-size: 18px;
 	font-family: "Gil Sans", "Helvetika", sans-serif;
 	line-height: 1.2em;
 	text-align: left;
@@ -15,9 +15,10 @@ header {
 	color: #fff;
 }
 h1 {
-	font-size: 24px;
+	font-size: 30px;
 	font-weight: bold;
 	text-align: left;
+	line-height: 1.5em;
 	margin: 0;
 }
 h2 {
@@ -31,11 +32,63 @@ h3 {
 	font-size: 20px;
 	margin:0;
 }
+
 nav, menu {
 	display: block;
 	float: right;
 	margin-top: -20px;
 }
+
+menu {
+	position: relative;
+	margin: 0;
+	margin-top: -50px;
+	padding: 0 8px 0 0;
+	border: 1px solid #1B6CB5;
+	border-radius: 5px;
+	background: #fff;
+	color: #1B6CB5;
+}
+menu a {
+	border: none;
+	border-right: 1px solid #1B6CB5;
+	border-top-right-radius: 0;
+	border-bottom-right-radius: 0;
+}
+menu ul {
+	display: none;
+	position: absolute;
+	top: 100%;
+	left: -1px;
+	z-index: 100;
+	width: 100%;
+	margin: 0;
+	margin-top: -5px;
+	padding: 5px 0;
+	border: 1px solid #1B6CB5;
+	border-top: none;
+	border-bottom-left-radius: 5px;
+	border-bottom-right-radius: 5px;
+	list-style-type: none;
+	background: #fff;
+}
+menu:focus ul {
+/*	display: block;*/
+}
+menu ul li {
+	margin: 0;
+	padding: 0;
+	border: none;
+	border-top: 1px solid #1B6CB5;
+}
+menu ul a {
+	display: block;
+	border: none;
+	border-radius: 0;
+	margin: 0;
+}
+
+
 p {
 	margin-bottom: 1.2em;
 }
@@ -50,9 +103,13 @@ a, button {
 	font-weight: bold;
 }
 
-header h1 {
-	width: 40%;
+button {
+	font-size: 18px;
 }
+
+header h1 {
+}
+
 header nav {
 	float: none;
 	clear: both;
@@ -81,6 +138,9 @@ header p {
 header span.user {
 	font-weight: bold;
 }
+header menu {
+	margin-top: -40px;
+}
 
 #app-content {
 	display: block;
@@ -101,70 +161,14 @@ header span.user {
 	margin: 0;
 }
 
-div.checked-in {
-	padding: 20px;
-}
-
-img.badge {
-	float: left;
-	margin: 0 10px 10px 0;
-}
-
-div.error {
-	padding: 20px;
-	color: red;
-	font-weight: bold;
-}
-div.error * {
-	color: inherit;
-}
-
-#app-content menu {
-	position: relative;
-	top: -50px;
-	margin: 0;
-	padding: 0 8px 0 0;
-	border: 1px solid #1B6CB5;
-	border-radius: 5px;
-}
-#app-content menu a {
-	border: none;
-	border-right: 1px solid #1B6CB5;
-	border-top-right-radius: 0;
-	border-bottom-right-radius: 0;
-}
-#app-content menu ul {
-	display: none;
-	position: absolute;
-	top: 100%;
-	left: -1px;
-	z-index: 100;
-	width: 100%;
-	margin: 0;
-	margin-top: -5px;
-	padding: 5px 0;
-	border: 1px solid #1B6CB5;
-	border-top: none;
-	border-bottom-left-radius: 5px;
-	border-bottom-right-radius: 5px;
-	list-style-type: none;
-	background: #fff;
-}
-#app-content menu:hover ul {
-/*	display: block;*/
-}
 #app-content menu ul li {
-	margin: 0;
 	padding: 0;
-	border: none;
-	border-top: 1px solid #1B6CB5;
 }
+
 #app-content menu ul a {
-	display: block;
-	border: none;
-	border-radius: 0;
-	margin: 0;
+	background: none;
 }
+
 #app-content section {
 	display: none;
 	position: absolute;
@@ -185,3 +189,23 @@ div.error * {
 	height: 140px;
 	margin-bottom: 10px;
 }
+
+div.checked-in {
+	padding: 20px;
+}
+
+img.badge {
+	float: left;
+	margin: 0 10px 10px 0;
+}
+
+div.error {
+	padding: 20px;
+	color: red;
+	font-weight: bold;
+}
+div.error * {
+	color: inherit;
+}
+
+
