@@ -7,24 +7,28 @@ var fc = (function () {
 			'Timeout'
 		];
 	
-	var currentPosition = {}, lastPosition = {};
+	var currentPosition = {}, lastPosition = {}, hasGeoLocation = false;
+
+	if (navigator.geolocation){
+		hasGeoLocation = true;
+	}
 	
 	return {
 
 		getPosition: function(){
 
-			if (navigator.geolocation){
-			
-				var me = this;
-			
-				this.posWatch = navigator.geolocation.watchPosition(
+			if (hasGeoLocation){
 		
+				var me = this;
+	
+				this.posWatch = navigator.geolocation.watchPosition(
+
 					function (position) {  
 
 						lastPosition = currentPosition;
 						currentPosition = position;
 						$(document).trigger("data:position", position);
-					
+			
 					},
 					// next function is the error callback
 					function (error) {
@@ -36,10 +40,14 @@ var fc = (function () {
 						timeout: 60000
 					}
 				);
+
 			}
 			else{
+
 				$(document).trigger("error:other", 'Your browser does not support GeoLocation, sorry.');
+
 			}
+
 		},
 		
 		stopPosWatch: function(){
