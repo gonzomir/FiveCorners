@@ -7,11 +7,21 @@ var fc = (function () {
 			'Timeout'
 		];
 	
-	var currentPosition = {}, lastPosition = {}, hasGeoLocation = false;
+	var currentPosition = {}, lastPosition = {}, hasGeoLocation = false, hasLocalStorage = false;
 
 	if (navigator.geolocation){
 		hasGeoLocation = true;
 	}
+	
+	function supports_html5_storage() {
+		try {
+			return 'localStorage' in window && window['localStorage'] !== null;
+		} catch (e) {
+			return false;
+		}
+	}
+	
+	hasLocalStorage = supports_html5_storage();
 	
 	return {
 
@@ -84,22 +94,39 @@ var fc = (function () {
 		},
 
 		getUser: function(){
+			
+			var data = false;
+			
+			if(hasLocalStorage){
+				var user = window.localStorage.getItem('user');
+				if(user && user != 'undefined'){
+					data = $.parseJSON(user);
+					$(document).trigger("data:user", data.response);
+				}
+			}
+			if(!data){
 
-			$.ajax({
-				url: 'ajax.php?action=user', 
-				dataType: 'json',
-				success: function(data, textStatus, XMLHttpRequest){
+				$.ajax({
+					url: 'ajax.php?action=user', 
+					success: function(d, textStatus, XMLHttpRequest){
 				
-						$(document).trigger("data:user", data.response);
+							if(hasLocalStorage){
+								localStorage.setItem('user', XMLHttpRequest.responseText);
+							}
 
-					},
-				error: function(XMLHttpRequest, textStatus, errorThrown){
+							data = $.parseJSON(XMLHttpRequest.responseText);
+							$(document).trigger("data:user", data.response);
 
-						$(document).trigger("error:http", XMLHttpRequest);
+						},
+					error: function(XMLHttpRequest, textStatus, errorThrown){
 
-					}
+							$(document).trigger("error:http", XMLHttpRequest);
 
-			});
+						}
+
+				});
+			
+			}
 		
 		},
 	
@@ -134,7 +161,7 @@ var fc = (function () {
 $(document).ready(function(){
 	
 	$(document).bind("data:user", function(e, data){
-
+	
 		var nameparts = [];
 		if(data.user.firstname != ''){
 			nameparts.push(data.user.firstName);
@@ -263,6 +290,9 @@ $(document).ready(function(){
 
 		if(XMLHttpRequest.status == 401 || XMLHttpRequest.status == 403){
 
+			if(hasLocalStorage){
+				localStorage.removeItem('user');
+			}
 			var data = $.parseJSON( XMLHttpRequest.responseText );
 			document.location = data.loginurl;
 
