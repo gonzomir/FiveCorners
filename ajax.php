@@ -72,38 +72,72 @@ if( !isset($_COOKIE['access_token']) ) {
 
 $foursquareObj->setAccessToken($_COOKIE['access_token']);
 
-switch($_GET['action']){
-	
-	case 'user':
-	
-		$user = $foursquareObj->get('/users/self');
-		echo $user->responseText;
-		
-		break;
-		
-	case 'venues':
-	
-		unset($_GET['action']);
-		
-		$venues = $foursquareObj->get('/venues/search',$_GET);
-		echo $venues->responseText;
-		
-		break;
-		
-	case 'checkin':
-		
-		unset($_GET['action']);
-		
-		$checkin = $foursquareObj->post('/checkins/add',$_GET);
-		//print_r(json_decode(stripslashes($checkin->responseText)));
-		echo $checkin->responseText;
-		
-		break;
-				
-	default:
-		header('HTTP/1.1 501 Unimplemented');
-		echo 'Method not implemented';
+try{
 
+	switch($_GET['action']){
+	
+		case 'user':
+	
+			$user = $foursquareObj->get('/users/self');
+			echo $user->responseText;
+		
+			break;
+		
+		case 'friends':
+	
+			unset($_GET['action']);
+		
+			$friends = $foursquareObj->get('/users/self/friends');
+			echo $friends->responseText;
+		
+			break;
+		
+		case 'friend':
+	
+			unset($_GET['action']);
+		
+			$friends = $foursquareObj->get('/users/'.$_GET['friend']);
+			echo $friends->responseText;
+		
+			break;
+		
+		case 'venues':
+	
+			unset($_GET['action']);
+		
+			$venues = $foursquareObj->get('/venues/search',$_GET);
+			echo $venues->responseText;
+		
+			break;
+		
+		case 'checkin':
+		
+			unset($_GET['action']);
+		
+			$checkin = $foursquareObj->post('/checkins/add',$_GET);
+			//print_r(json_decode(stripslashes($checkin->responseText)));
+			echo $checkin->responseText;
+		
+			break;
+				
+		default:
+			header('HTTP/1.1 501 Unimplemented');
+			echo 'Method not implemented';
+
+	}
+
+} catch (EpiFoursquareBadRequestException $e){
+	header('HTTP/1.1 400 Bad Request');
+	echo $e->getMessage();
+} catch (EpiFoursquareNotAuthorizedException $e){
+	header('HTTP/1.1 401 Unauthorized');
+	echo $e->getMessage();
+} catch (EpiFoursquareException $e){
+	header('HTTP/1.1 '.$e->getCode());
+	echo $e->getCode().'  '.$e->getMessage();
+} catch (Exception $e) {
+	header('HTTP/1.1 500 Internal Server Error');
+	echo $e->getCode().'  '.$e->getMessage();
 }
 
 ?>

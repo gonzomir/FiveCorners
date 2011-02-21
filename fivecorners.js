@@ -130,6 +130,47 @@ var fc = (function () {
 		
 		},
 	
+		getFriends: function(){
+			
+			$.ajax({
+				url: 'ajax.php?action=friends', 
+				dataType: 'json',
+				success: function(data, textStatus, XMLHttpRequest){
+			
+						$(document).trigger("data:friends", data.response);
+
+					},
+				error: function(XMLHttpRequest, textStatus, errorThrown){
+
+						$(document).trigger("error:http", XMLHttpRequest);
+
+					}
+
+			});
+			
+		},
+
+		getFriend: function(id){
+			
+			$.ajax({
+				url: 'ajax.php?action=friend&friend=' + id, 
+				dataType: 'json',
+				success: function(data, textStatus, XMLHttpRequest){
+			
+						$(document).trigger("data:friend", data.response);
+
+					},
+				error: function(XMLHttpRequest, textStatus, errorThrown){
+
+						$(document).trigger("error:http", XMLHttpRequest);
+
+					}
+
+			});
+			
+		},
+	
+	
 		checkin: function(venue, shout){
 
 			var url = 'ajax.php?action=checkin&broadcast=public&venueId=' + venue + '&ll=' + currentPosition.coords.latitude + ',' + currentPosition.coords.longitude + '&llAcc=' + currentPosition.coords.accuracy;
@@ -177,6 +218,79 @@ $(document).ready(function(){
 		$(document).trigger("action:getposition");
 
 	});
+
+	$(document).bind("data:friends", function(e, data){
+	
+		var i = 0, nameparts = [], friend = {};
+		
+		var friendsCount = data.friends.count;
+		
+		var ul = document.createElement('ul');
+		var $ul = $(ul);
+
+		for(i = 0; i < friendsCount; i += 1){
+			
+			friend = data.friends.items[i];
+			nameparts = [];
+
+			if(friend.firstname != ''){
+				nameparts.push(friend.firstName);
+			}
+			if(friend.lastname != ''){
+				nameparts.push(friend.lastName);
+			}
+			if(nameparts.length<2 && friend.contact.twitter){
+				nameparts.push('@' + friend.contact.twitter);
+			}
+
+			$ul.append('<li id="friend-' + friend.id + '"><h3>' + nameparts.join(' ') + '</h3><p></p></li>');
+			
+			fc.getFriend(friend.id);
+
+		}
+
+		$('#friends-list').append($ul);
+		$('#app-content section:visible').not('#friends-list').hide();
+		$('#friends-list').show();
+
+	});
+
+	$(document).bind("data:friend", function(e, data){
+	
+		var friend = data.user;
+		var nameparts = [];
+
+		if(friend.firstname != ''){
+			nameparts.push(friend.firstName);
+		}
+		if(friend.lastname != ''){
+			nameparts.push(friend.lastName);
+		}
+		if(nameparts.length<2 && friend.contact.twitter){
+			nameparts.push('@' + friend.contact.twitter);
+		}
+		
+		var lastCheckin = friend.checkins.items[0];
+		var venue = lastCheckin.venue;
+		var address = [];
+		if (venue.location.address) address.push(venue.location.address);
+		if (venue.location.city) address.push(venue.location.city);
+		var categories = [];
+		var cats = venue.categories.length;
+		for(var c = 0; c < cats; c += 1){
+			categories.push(venue.categories[c].name);
+		}
+		
+		var checkinTime = lastCheckin.createdAt;
+		var now = Date.now() / 1000;
+		var minutes = Math.round((now - checkinTime) / 60);
+		var hours = Math.floor(minutes/60);
+		minutes = minutes - hours * 60;
+
+		$('#friend-' + friend.id).html('<h3>' + nameparts.join(' ') + '</h3><p>was @ <strong>' + venue.name + '</strong> before ' + hours + 'h ' + minutes + 'min</p><p>' + categories.join(', ') + '</p><p>' + address.join(', ') + '</p></li>');
+			
+	});
+
 
 	$(document).bind("data:position",function(e, position){
 
@@ -376,6 +490,12 @@ $(document).ready(function(){
 	$(document).bind("action:getposition", function(e, el){
 
 		fc.getPosition();
+
+	});
+	
+	$(document).bind("action:getfriends", function(e, el){
+
+		fc.getFriends();
 
 	});
 	
