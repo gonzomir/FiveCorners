@@ -24,6 +24,8 @@ var fc = (function () {
 	hasLocalStorage = supports_html5_storage();
 	
 	return {
+		
+		hasLocalStorage: hasLocalStorage,
 
 		getPosition: function(){
 
@@ -80,6 +82,11 @@ var fc = (function () {
 				dataType: 'json',
 				success: function(data, textStatus, XMLHttpRequest){
 				
+						if( data.meta.code != 200 ){
+							$(document).trigger("error:other", data.meta.errorDetail);
+							return false;
+						}
+
 						$(document).trigger("data:venues", data.response);
 
 					},
@@ -137,6 +144,11 @@ var fc = (function () {
 				dataType: 'json',
 				success: function(data, textStatus, XMLHttpRequest){
 			
+						if( data.meta.code != 200 ){
+							$(document).trigger("error:other", data.meta.errorDetail);
+							return false;
+						}
+
 						$(document).trigger("data:friends", data.response);
 
 					},
@@ -157,6 +169,11 @@ var fc = (function () {
 				dataType: 'json',
 				success: function(data, textStatus, XMLHttpRequest){
 			
+						if( data.meta.code != 200 ){
+							$(document).trigger("error:other", data.meta.errorDetail);
+							return false;
+						}
+
 						$(document).trigger("data:friend", data.response);
 
 					},
@@ -183,6 +200,11 @@ var fc = (function () {
 				dataType: 'json',
 				success: function(data, textStatus, XMLHttpRequest){
 				
+						if( data.meta.code!=200 ){
+							$(document).trigger("error:other", data.meta.errorDetail);
+							return false;
+						}
+
 						$(document).trigger("action:checkedin", data);
 									
 					},
@@ -309,11 +331,6 @@ $(document).ready(function(){
 
 		$('#venues-list').html('');
 		
-		if( data.error ){
-			$(document).trigger("error:other", data.error);
-			return false;
-		}
-
 		var groups = data.groups.length;
 	
 		for (var g = 0; g<groups; g++){
@@ -352,11 +369,6 @@ $(document).ready(function(){
 
 		$('#message').html('');
 	
-		if( data.meta.code!=200 ){
-			$(document).trigger("error:other", data.error);
-			return false;
-		}
-
 		var $div = $('<div class="checked-in"></div>');
 		
 		var checkin = {};
@@ -404,7 +416,7 @@ $(document).ready(function(){
 
 		if(XMLHttpRequest.status == 401 || XMLHttpRequest.status == 403){
 
-			if(hasLocalStorage){
+			if(fc.hasLocalStorage){
 				localStorage.removeItem('user');
 			}
 			var data = $.parseJSON( XMLHttpRequest.responseText );
