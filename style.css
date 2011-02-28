@@ -152,6 +152,7 @@ header menu {
 	position:relative;
 }
 #app-content ul {
+	clear: both;
 	list-style-type: none;
 	padding: 0;
 	margin:0;
@@ -195,6 +196,23 @@ header menu {
 	margin-bottom: 10px;
 }
 
+#app-content section > menu {
+	position: relative;
+	top: -10px;
+	float:right;
+	margin: 0 20px 0 0;
+	padding: 0;
+	border: 1px solid #1B6CB5;
+	border-radius: 5px;
+	background: #fff;
+	color: #1B6CB5;
+}
+#app-content section > menu a {
+	border: none;
+	border-top-right-radius: 5px;
+	border-bottom-right-radius: 5px;
+}
+
 div.checked-in {
 	padding: 20px;
 }
@@ -212,5 +230,8 @@ div.error {
 div.error * {
 	color: inherit;
 }
-
+div.loading {
+	min-height: 100px;
+	background: URL('loading.gif') center no-repeat;
+}
 

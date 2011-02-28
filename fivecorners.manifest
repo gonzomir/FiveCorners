@@ -1,6 +1,7 @@
-#version 20110223v1
+#version 20110301v1
 CACHE MANIFEST
 jquery.js
 fivecorners.js
 style.css
+loading.gif
 

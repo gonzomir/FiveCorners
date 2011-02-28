@@ -26,13 +26,13 @@
 	<body>
 		<header>
 			<h1>Five Corners</h1>
-			<menu>
+			<!-- menu>
 				<a href="/" data-action="action:getposition">get position</a> &#9660;
 				<ul>
 					<li><a href="ajax.php?action=venues" data-action="action:getvenues">get venues</a></li>
 					<li><a href="ajax.php?action=friends" data-action="action:getfriends">get friends</a></li>
 				</ul>
-			</menu>
+			</menu -->
 			<p><span class="user"></span>&nbsp;<br /> <span class="location"></span>&nbsp;</p>
 			<nav>
 				<ul>
@@ -42,8 +42,8 @@
 			</nav>
 		</header>
 		<div id="app-content">
-			<section id="venues-list"></section>
-			<section id="friends-list"></section>
+			<section id="venues-list" data-update-action="action:getposition" data-updated="0"></section>
+			<section id="friends-list" data-update-action="action:getfriends" data-updated="0"></section>
 			<section id="message"></section>
 			<section id="shoutForm">
 				<h2></h2>

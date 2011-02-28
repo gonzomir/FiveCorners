@@ -7,7 +7,7 @@ var fc = (function () {
 			'Timeout'
 		];
 	
-	var currentPosition = {}, lastPosition = {}, hasGeoLocation = false, hasLocalStorage = false;
+	var currentPosition = {}, lastPosition = {}, hasGeoLocation = false, hasLocalStorage = false, posWatch = null;
 
 	if (navigator.geolocation){
 		hasGeoLocation = true;
@@ -25,6 +25,8 @@ var fc = (function () {
 	
 	return {
 		
+		hasGeoLocation: hasGeoLocation,
+
 		hasLocalStorage: hasLocalStorage,
 
 		getPosition: function(){
@@ -32,8 +34,12 @@ var fc = (function () {
 			if (hasGeoLocation){
 		
 				var me = this;
+				
+				if(posWatch){
+					this.stopPosWatch();
+				}
 	
-				this.posWatch = navigator.geolocation.watchPosition(
+				posWatch = navigator.geolocation.watchPosition(
 
 					function (position) {  
 
@@ -44,8 +50,10 @@ var fc = (function () {
 					},
 					// next function is the error callback
 					function (error) {
-						var error_message = gle[error.code];
-						$(document).trigger("error:other", error_message);
+						if(error.code != 2){
+							var error_message = gle[error.code];
+							$(document).trigger("error:other", error_message);
+						}
 					},
 					{
 						enableHighAccuracy: true,
@@ -64,7 +72,7 @@ var fc = (function () {
 		
 		stopPosWatch: function(){
 			if (navigator.geolocation){
-				navigator.geolocation.clearWatch(this.posWatch);
+				navigator.geolocation.clearWatch(posWatch);
 			}
 		},
 		
@@ -243,6 +251,8 @@ $(document).ready(function(){
 
 	$(document).bind("data:friends", function(e, data){
 	
+		$('#friends-list').html('<menu><a href="ajax.php?action=friends" data-action="action:getfriends">refresh</a></menu>');
+		
 		var i = 0, nameparts = [], friend = {};
 		
 		var friendsCount = data.friends.count;
@@ -270,10 +280,12 @@ $(document).ready(function(){
 			fc.getFriend(friend.id);
 
 		}
-
+		
 		$('#friends-list').append($ul);
 		$('#app-content section:visible').not('#friends-list').hide();
 		$('#friends-list').show();
+		
+		$('#friends-list').data('updated', Date.now());
 
 	});
 
@@ -308,8 +320,27 @@ $(document).ready(function(){
 		var minutes = Math.round((now - checkinTime) / 60);
 		var hours = Math.floor(minutes/60);
 		minutes = minutes - hours * 60;
+		var days = Math.floor(hours/24);
+		hours = hours - days * 24;
+		
+		var before = '';
+		if(days > 1){
+			before = days + ' days';
+		}
+		else if(days == 1){
+			before = days + ' day';
+		}
+		else if (hours > 6){
+			before = hours + ' hours';
+		}
+		else if (hours == 0){
+			before = minutes + ' minutes';
+		}
+		else{
+			before = hours + 'h ' + minutes + 'min';
+		}
 
-		$('#friend-' + friend.id).html('<h3>' + nameparts.join(' ') + '</h3><p>was @ <strong>' + venue.name + '</strong> before ' + hours + 'h ' + minutes + 'min</p><p>' + categories.join(', ') + '</p><p>' + address.join(', ') + '</p></li>');
+		$('#friend-' + friend.id).html('<h3>' + nameparts.join(' ') + '</h3><p>was @ <strong>' + venue.name + '</strong> before ' + before + '</p><p>' + categories.join(', ') + '</p><p>' + address.join(', ') + '</p></li>');
 			
 	});
 
@@ -329,7 +360,7 @@ $(document).ready(function(){
 	
 	$(document).bind("data:venues", function(e, data){
 
-		$('#venues-list').html('');
+		$('#venues-list').html('<menu><a href="ajax.php?action=venues" data-action="action:getposition">refersh</a></menu>');
 		
 		var groups = data.groups.length;
 	
@@ -360,6 +391,8 @@ $(document).ready(function(){
 			$('#venues-list').append($ul);
 			$('#app-content section:visible').not('#venues-list').hide();
 			$('#venues-list').show();
+
+			$('#venues-list').data('updated', Date.now());
 
 		}
 
@@ -495,17 +528,29 @@ $(document).ready(function(){
 
 	$(document).bind("action:getvenues", function(e, el){
 
+		$('#message').html('<div class="loading"></div>');
+		$('#app-content section:visible').not('#message').hide();
+		$('#message').show();
+
 		fc.getVenues();
 
 	});
 	
 	$(document).bind("action:getposition", function(e, el){
 
+		$('#message').html('<div class="loading"></div>');
+		$('#app-content section:visible').not('#message').hide();
+		$('#message').show();
+
 		fc.getPosition();
 
 	});
 	
 	$(document).bind("action:getfriends", function(e, el){
+
+		$('#message').html('<div class="loading"></div>');
+		$('#app-content section:visible').not('#message').hide();
+		$('#message').show();
 
 		fc.getFriends();
 
@@ -533,12 +578,19 @@ $(document).ready(function(){
 		var $tab = $(this.hash);
 		$('#app-content section:visible').not($tab).hide();
 		$tab.show();
+		
+		var n = Date.now();
+		var l = $tab.data('updated');
+		var a = $tab.data('update-action');
+		
+		if(n - l > 600000){
+			$(document).trigger(a, this);
+		}
+		
 		return false;
 	});
 	
-
 	fc.getUser();
-
 
 });
 
