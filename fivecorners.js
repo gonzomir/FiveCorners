@@ -108,6 +108,34 @@ var fc = (function () {
 	
 		},
 
+		getTips: function(id, venueName){
+			
+			$.ajax({
+				url: 'ajax.php?action=tips&venue=' + id, 
+				dataType: 'json',
+				success: function(data, textStatus, XMLHttpRequest){
+						
+						if( data.meta.code != 200 ){
+							$(document).trigger("error:other", data.meta.errorDetail);
+							return false;
+						}
+						
+						data.response.venueName = venueName;
+
+						$(document).trigger("data:tips", data.response);
+
+					},
+				error: function(XMLHttpRequest, textStatus, errorThrown){
+
+						$(document).trigger("error:http", XMLHttpRequest);
+
+					}
+
+			});
+			
+		},
+	
+
 		getUser: function(){
 			
 			var data = false;
@@ -212,7 +240,7 @@ var fc = (function () {
 							$(document).trigger("error:other", data.meta.errorDetail);
 							return false;
 						}
-
+						
 						$(document).trigger("action:checkedin", data);
 									
 					},
@@ -385,7 +413,7 @@ $(document).ready(function(){
 				for(var c = 0; c < cats; c += 1){
 					categories.push(venue.categories[c].name);
 				}
-				$ul.append('<li><h3>' + venue.name + '</h3><p>' + categories.join(', ') + '; ' + venue.hereNow.count + ' people here</p><p>' + address.join(', ') + '&nbsp;</p><menu><a href="ajax.php?action=checkin&amp;vid=' + venue.id + '" data-action="action:checkin" data-venue="' + venue.id + '">checkin</a> &#9660; <ul><li><a href="ajax.php?action=checkin&amp;vid=' + venue.id + '" data-action="action:shoutcheckin" data-venue="' + venue.id + '" data-vname="' + venue.name.replace('"','&quote;') + '">add shout</a></li><li><a href="ajax.php?action=tips&amp;vid=' + venue.id + '" data-action="action:gettips" data-venue="' + venue.id + '">tips</a></li></ul></menu></li>');
+				$ul.append('<li><h3>' + venue.name + '</h3><p>' + categories.join(', ') + '; ' + venue.hereNow.count + ' people here</p><p>' + address.join(', ') + '&nbsp;</p><menu><a href="ajax.php?action=checkin&amp;vid=' + venue.id + '" data-action="action:checkin" data-venue="' + venue.id + '">checkin</a> &#9660; <ul><li><a href="ajax.php?action=checkin&amp;vid=' + venue.id + '" data-action="action:shoutcheckin" data-venue="' + venue.id + '" data-vname="' + venue.name.replace('"','&quote;') + '">add shout</a></li><li><a href="ajax.php?action=tips&amp;vid=' + venue.id + '" data-action="action:gettips" data-venue="' + venue.id + '" data-venueName="' + venue.name.replace('"','&quot;') + '">tips</a></li></ul></menu></li>');
 			}
 
 			$('#venues-list').append($ul);
@@ -442,8 +470,36 @@ $(document).ready(function(){
 		$('#message').append($div);
 		$('#app-content section:visible').not('#message').hide();
 		$('#message').show();
+		
+		fc.getTips(data.response.checkin.venue.id, data.response.checkin.venue.name);
 
 	});
+
+	
+	$(document).bind("data:tips", function(e, data){
+
+		if( $('#message div.checkin').html() == '' ){
+			$('#message').html('');
+		}
+
+		$('#message').append('<h2>Tips for ' + data.venueName + '</h2>');
+		
+		var ul = document.createElement('ul');
+		var $ul = $(ul);
+		
+		var tipsCount = data.tips.items.length;
+		for( var i = 0; i < tipsCount; i++ ){
+			var tip = data.tips.items[i];
+			var user = tip.user;
+			$ul.append('<li><strong>' + user.firstName + ' ' + user.lastName + '</strong> from ' + user.homeCity + ' says:<p>' + tip.text + '</p></li>');
+		}
+		
+		$('#message').append($ul);
+		$('#app-content section:visible').not('#message').hide();
+		$('#message').show();
+		
+	});
+	
 	
 	$(document).bind("error:http", function(e, XMLHttpRequest){
 
@@ -536,6 +592,18 @@ $(document).ready(function(){
 
 	});
 	
+	$(document).bind("action:gettips", function(e, el){
+
+		$('#message').html('<div class="loading"></div>');
+		$('#app-content section:visible').not('#message').hide();
+		$('#message').show();
+
+		var venue = $(el).data('venue');
+		var venueName = $(el).data('venueName');
+		fc.getTips(venue, venueName);
+
+	});
+
 	$(document).bind("action:getposition", function(e, el){
 
 		$('#message').html('<div class="loading"></div>');

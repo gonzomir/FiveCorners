@@ -110,12 +110,21 @@ try{
 		
 			break;
 		
+		case 'tips':
+	
+			unset($_GET['action']);
+		
+			$tips = $foursquareObj->get('/venues/'.$_GET['venue'].'/tips', array('sort'=>'recent') );
+			echo $tips->responseText;
+		
+			break;
+		
 		case 'checkin':
 		
 			unset($_GET['action']);
 		
 			$checkin = $foursquareObj->post('/checkins/add',$_GET);
-			//print_r(json_decode(stripslashes($checkin->responseText)));
+			file_put_contents('tests.txt', print_r(json_decode(stripslashes($checkin->responseText)), true), FILE_APPEND);
 			echo $checkin->responseText;
 		
 			break;
