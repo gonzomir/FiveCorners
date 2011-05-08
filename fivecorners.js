@@ -110,17 +110,34 @@ var fc = (function () {
 
 		getTips: function(id, venueName){
 			
+			if(hasLocalStorage){
+				var stips = window.localStorage.getItem('tips:' + id);
+				if(stips && stips != 'undefined'){
+					var tips = JSON.parse(stips);
+					var now = Date.now() / 1000;
+					if(tips.meta.timestamp > now - 60*60){
+						$(document).trigger("data:tips", tips.response);
+						return;
+					}
+				}
+			}
+
 			$.ajax({
 				url: 'ajax.php?action=tips&venue=' + id, 
 				dataType: 'json',
 				success: function(data, textStatus, XMLHttpRequest){
-						
+					
 						if( data.meta.code != 200 ){
 							$(document).trigger("error:other", data.meta.errorDetail);
 							return false;
 						}
-						
+					
 						data.response.venueName = venueName;
+						data.meta.timestamp = Date.now() / 1000;
+
+						if(hasLocalStorage){
+							localStorage.setItem('tips:' + id, JSON.stringify(data));
+						}
 
 						$(document).trigger("data:tips", data.response);
 
@@ -132,7 +149,7 @@ var fc = (function () {
 					}
 
 			});
-			
+						
 		},
 	
 
