@@ -506,17 +506,30 @@ $(document).ready(function(){
 
 		$('#message').append('<h2>Tips for ' + data.venueName + '</h2>');
 		
-		var ul = document.createElement('ul');
-		var $ul = $(ul);
+		if(data.tips.count > 0){
+			var ul = document.createElement('ul');
+			var $ul = $(ul);
 		
-		var tipsCount = data.tips.items.length;
-		for( var i = 0; i < tipsCount; i++ ){
-			var tip = data.tips.items[i];
-			var user = tip.user;
-			$ul.append('<li><strong>' + user.firstName + ' ' + user.lastName + '</strong> from ' + user.homeCity + ' says:<p>' + tip.text + '</p></li>');
+			var tipsCount = data.tips.items.length;
+			for( var i = 0; i < tipsCount; i++ ){
+				var tip = data.tips.items[i];
+				var user = tip.user;
+				var nameparts = [];
+
+				if(user.firstName != ''){
+					nameparts.push(user.firstName);
+				}
+				if(user.lastName != ''){
+					nameparts.push(user.lastName);
+				}
+				$ul.append('<li><strong>' + nameparts.join(' ') + '</strong> from ' + user.homeCity + ' says:<p>' + tip.text + '</p></li>');
+			}
+			$('#message').append($ul);
+		}
+		else{
+			$('#message').append('<p>No tips for this venue.</p>');
 		}
 		
-		$('#message').append($ul);
 		$('#app-content section:visible').not('#message').hide();
 		$('#message').show();
 		
@@ -680,7 +693,12 @@ $(document).ready(function(){
 		return false;
 	});
 	
-	fc.getUser();
+	if(fc.hasGeoLocation){
+		fc.getUser();
+	}
+	else{
+		$(document).trigger("error:other", 'Your browser does not support GeoLocation, sorry. You better use <a href="m.foursquare.com">Foursquare mobile site</a>.');
+	}
 
 });
 

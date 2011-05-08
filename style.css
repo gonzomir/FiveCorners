@@ -97,6 +97,7 @@ menu ul a {
 p {
 	margin-bottom: 1.2em;
 }
+
 a, button {
 	display: inline-block;
 	padding: 5px 5px;
@@ -106,6 +107,13 @@ a, button {
 	color: #1B6CB5;
 	text-decoration: none;
 	font-weight: bold;
+}
+
+#message a {
+	display: inline;
+	padding: 0;
+	border: 0;
+	text-decoration: underline;
 }
 
 button {
@@ -120,17 +128,20 @@ header nav {
 	clear: both;
 	margin-top: 5px;
 }
+
 nav ul {
 	list-style-type: none;
 	overflow: hidden;
 	padding: 0;
 	margin: 0;
 }
+
 header nav li {
 	float:left;
 	margin: 0;
 	padding: 0;
 }
+
 header nav li a {
 	border-bottom: none;
 	border-bottom-left-radius: 0;
@@ -138,11 +149,14 @@ header nav li a {
 	font-size: 20px;
 	padding: 10px 15px;
 }
+
 header p {
 }
+
 header span.user {
 	font-weight: bold;
 }
+
 header menu {
 	margin-top: -40px;
 }
@@ -151,6 +165,7 @@ header menu {
 	display: block;
 	position:relative;
 }
+
 #app-content ul {
 	clear: both;
 	list-style-type: none;
@@ -158,11 +173,13 @@ header menu {
 	margin:0;
 	border-bottom: 1px solid #ccc;
 }
+
 #app-content ul li {
 	padding: 10px 20px;
 	margin: 0px;
 	border-top: 1px solid #ccc;
 }
+
 #app-content ul li p, header p {
 	margin: 0;
 }
@@ -184,12 +201,15 @@ header menu {
 	padding: 20px 0;
 	background: #fff;
 }
+
 #app-content section:first-child {
 	display: block;
 }
+
 #app-content form {
 	padding: 20px;
 }
+
 #app-content textarea {
 	width: 100%;
 	height: 140px;
@@ -207,6 +227,7 @@ header menu {
 	background: #fff;
 	color: #1B6CB5;
 }
+
 #app-content section > menu a {
 	border: none;
 	border-top-right-radius: 5px;
@@ -217,6 +238,10 @@ div.checked-in {
 	padding: 20px;
 }
 
+#message > p {
+	padding: 0 20px;
+}
+
 img.badge {
 	float: left;
 	margin: 0 10px 10px 0;
@@ -224,12 +249,13 @@ img.badge {
 
 div.error {
 	padding: 20px;
-	color: red;
 	font-weight: bold;
 }
-div.error * {
-	color: inherit;
+
+div.error h2, div.error h3 {
+	color: red;
 }
+
 div.loading {
 	min-height: 100px;
 	background: URL('loading.gif') center no-repeat;
