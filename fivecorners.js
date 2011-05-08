@@ -413,7 +413,12 @@ $(document).ready(function(){
 				for(var c = 0; c < cats; c += 1){
 					categories.push(venue.categories[c].name);
 				}
-				$ul.append('<li><h3>' + venue.name + '</h3><p>' + categories.join(', ') + '; ' + venue.hereNow.count + ' people here</p><p>' + address.join(', ') + '&nbsp;</p><menu><a href="ajax.php?action=checkin&amp;vid=' + venue.id + '" data-action="action:checkin" data-venue="' + venue.id + '">checkin</a> &#9660; <ul><li><a href="ajax.php?action=checkin&amp;vid=' + venue.id + '" data-action="action:shoutcheckin" data-venue="' + venue.id + '" data-vname="' + venue.name.replace('"','&quote;') + '">add shout</a></li><li><a href="ajax.php?action=tips&amp;vid=' + venue.id + '" data-action="action:gettips" data-venue="' + venue.id + '" data-venueName="' + venue.name.replace('"','&quot;') + '">tips</a></li></ul></menu></li>');
+				var $li = $('<li><h3>' + venue.name + '</h3><p>' + categories.join(', ') + '; ' + venue.hereNow.count + ' people here</p><p>' + address.join(', ') + '&nbsp;</p><menu><a href="ajax.php?action=checkin&amp;vid=' + venue.id + '" data-action="action:checkin" data-venue="' + venue.id + '">checkin</a> &#9660; <ul><li><a href="ajax.php?action=checkin&amp;vid=' + venue.id + '" data-action="action:shoutcheckin" data-venue="' + venue.id + '" data-vname="' + venue.name.replace('"','&quote;') + '">add shout</a></li><li><a href="ajax.php?action=tips&amp;venue=' + venue.id + '" data-action="action:gettips" data-venue="' + venue.id + '" data-venueName="' + venue.name.replace('"','&quot;') + '">tips</a></li></ul></menu></li>');
+				
+				$li.attr('data-venue', JSON.stringify(venue) );
+				
+				$ul.append($li);
+				
 			}
 
 			$('#venues-list').append($ul);
@@ -478,7 +483,7 @@ $(document).ready(function(){
 	
 	$(document).bind("data:tips", function(e, data){
 
-		if( $('#message div.checkin').html() == '' ){
+		if( $('#message div.checked-in').size() == 0 ){
 			$('#message').html('');
 		}
 
