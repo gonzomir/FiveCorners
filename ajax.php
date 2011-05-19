@@ -20,13 +20,13 @@ if( !isset($_COOKIE['access_token']) &&  !isset($_GET['code'])  ){
 	try{
 		$loginurl = $foursquareObj->getAuthorizeUrl($redirectUri);
 		$_SESSION['secret'] = $results['oauth_token_secret'];
-		header('HTTP/1.1 401 Unauthorized');
+		header('HTTP/1.1 403 Forbidden');
 		echo json_encode( array( 'loginurl' => $loginurl ) );
 	} catch (EpiFoursquareBadRequestException $e){
 		header('HTTP/1.1 400 Bad Request');
 		echo $e->getMessage();
 	} catch (EpiFoursquareNotAuthorizedException $e){
-		header('HTTP/1.1 401 Unauthorized');
+		header('HTTP/1.1 403 Forbidden');
 		echo $e->getMessage();
 	} catch (EpiFoursquareException $e){
 		header('HTTP/1.1 '.$e->getCode());
@@ -55,7 +55,7 @@ if( !isset($_COOKIE['access_token']) ) {
 		header('HTTP/1.1 400 Bad Request');
 		echo $e->getMessage();
 	} catch (EpiFoursquareNotAuthorizedException $e){
-		header('HTTP/1.1 401 Unauthorized');
+		header('HTTP/1.1 403 Forbidden');
 		echo $e->getMessage();
 	} catch (EpiFoursquareException $e){
 		header('HTTP/1.1 '.$e->getCode());
@@ -139,7 +139,7 @@ try{
 	header('HTTP/1.1 400 Bad Request');
 	echo $e->getMessage();
 } catch (EpiFoursquareNotAuthorizedException $e){
-	header('HTTP/1.1 401 Unauthorized');
+	header('HTTP/1.1 403 Forbidden');
 	echo $e->getMessage();
 } catch (EpiFoursquareException $e){
 	header('HTTP/1.1 '.$e->getCode());

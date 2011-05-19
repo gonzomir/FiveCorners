@@ -6,6 +6,9 @@ var fc = (function () {
 			'Position unavailable, try again later. Some devices require GPS to be turned on.',
 			'Timeout'
 		];
+		
+	var baseURL = baseURL + '';
+	//var baseURL = '';
 	
 	var currentPosition = {}, lastPosition = {}, hasGeoLocation = false, hasLocalStorage = false, posWatch = null;
 
@@ -83,7 +86,7 @@ var fc = (function () {
 				return;
 			}
 			
-			var url = 'http://greatgonzo.net/fivecorners/ajax.php?action=venues&limit=30&ll=' + currentPosition.coords.latitude + ',' + currentPosition.coords.longitude + '&llAcc=' + currentPosition.coords.accuracy;
+			var url = baseURL + 'ajax.php?action=venues&limit=30&ll=' + currentPosition.coords.latitude + ',' + currentPosition.coords.longitude + '&llAcc=' + currentPosition.coords.accuracy;
 	
 			$.ajax({
 				url: url, 
@@ -123,7 +126,7 @@ var fc = (function () {
 			}
 
 			$.ajax({
-				url: 'http://greatgonzo.net/fivecorners/ajax.php?action=tips&venue=' + id, 
+				url: baseURL + 'ajax.php?action=tips&venue=' + id, 
 				dataType: 'json',
 				success: function(data, textStatus, XMLHttpRequest){
 					
@@ -167,9 +170,8 @@ var fc = (function () {
 			if(!data){
 
 				$.ajax({
-					url: 'http://greatgonzo.net/fivecorners/ajax.php?action=user', 
+					url: baseURL + 'ajax.php?action=user', 
 					success: function(d, textStatus, XMLHttpRequest){
-							 alert(XMLHttpRequest.responseText);
 				
 							if(hasLocalStorage){
 								localStorage.setItem('user', XMLHttpRequest.responseText);
@@ -194,7 +196,7 @@ var fc = (function () {
 		getFriends: function(){
 			
 			$.ajax({
-				url: 'http://greatgonzo.net/fivecorners/ajax.php?action=friends', 
+				url: baseURL + 'ajax.php?action=friends', 
 				dataType: 'json',
 				success: function(data, textStatus, XMLHttpRequest){
 			
@@ -219,7 +221,7 @@ var fc = (function () {
 		getFriend: function(id){
 			
 			$.ajax({
-				url: 'http://greatgonzo.net/fivecorners/ajax.php?action=friend&friend=' + id, 
+				url: baseURL + 'ajax.php?action=friend&friend=' + id, 
 				dataType: 'json',
 				success: function(data, textStatus, XMLHttpRequest){
 			
@@ -244,7 +246,7 @@ var fc = (function () {
 	
 		checkin: function(venue, shout){
 
-			var url = 'http://greatgonzo.net/fivecorners/ajax.php?action=checkin&broadcast=public&venueId=' + venue + '&ll=' + currentPosition.coords.latitude + ',' + currentPosition.coords.longitude + '&llAcc=' + currentPosition.coords.accuracy;
+			var url = baseURL + 'ajax.php?action=checkin&broadcast=public&venueId=' + venue + '&ll=' + currentPosition.coords.latitude + ',' + currentPosition.coords.longitude + '&llAcc=' + currentPosition.coords.accuracy;
 			if(shout){
 				url = url + '&shout=' + encodeURIComponent(shout);
 			}
@@ -539,7 +541,7 @@ $(document).ready(function(){
 	
 	$(document).bind("error:http", function(e, XMLHttpRequest){
 
-		if(XMLHttpRequest.status == 401 || XMLHttpRequest.status == 403){
+		if(XMLHttpRequest.status == 403 || XMLHttpRequest.status == 401){
 
 			if(fc.hasLocalStorage){
 				localStorage.removeItem('user');
