@@ -83,7 +83,7 @@ var fc = (function () {
 				return;
 			}
 			
-			var url = 'ajax.php?action=venues&limit=30&ll=' + currentPosition.coords.latitude + ',' + currentPosition.coords.longitude + '&llAcc=' + currentPosition.coords.accuracy;
+			var url = 'http://greatgonzo.net/fivecorners/ajax.php?action=venues&limit=30&ll=' + currentPosition.coords.latitude + ',' + currentPosition.coords.longitude + '&llAcc=' + currentPosition.coords.accuracy;
 	
 			$.ajax({
 				url: url, 
@@ -123,7 +123,7 @@ var fc = (function () {
 			}
 
 			$.ajax({
-				url: 'ajax.php?action=tips&venue=' + id, 
+				url: 'http://greatgonzo.net/fivecorners/ajax.php?action=tips&venue=' + id, 
 				dataType: 'json',
 				success: function(data, textStatus, XMLHttpRequest){
 					
@@ -167,8 +167,9 @@ var fc = (function () {
 			if(!data){
 
 				$.ajax({
-					url: 'ajax.php?action=user', 
+					url: 'http://greatgonzo.net/fivecorners/ajax.php?action=user', 
 					success: function(d, textStatus, XMLHttpRequest){
+							 alert(XMLHttpRequest.responseText);
 				
 							if(hasLocalStorage){
 								localStorage.setItem('user', XMLHttpRequest.responseText);
@@ -193,7 +194,7 @@ var fc = (function () {
 		getFriends: function(){
 			
 			$.ajax({
-				url: 'ajax.php?action=friends', 
+				url: 'http://greatgonzo.net/fivecorners/ajax.php?action=friends', 
 				dataType: 'json',
 				success: function(data, textStatus, XMLHttpRequest){
 			
@@ -218,7 +219,7 @@ var fc = (function () {
 		getFriend: function(id){
 			
 			$.ajax({
-				url: 'ajax.php?action=friend&friend=' + id, 
+				url: 'http://greatgonzo.net/fivecorners/ajax.php?action=friend&friend=' + id, 
 				dataType: 'json',
 				success: function(data, textStatus, XMLHttpRequest){
 			
@@ -243,7 +244,7 @@ var fc = (function () {
 	
 		checkin: function(venue, shout){
 
-			var url = 'ajax.php?action=checkin&broadcast=public&venueId=' + venue + '&ll=' + currentPosition.coords.latitude + ',' + currentPosition.coords.longitude + '&llAcc=' + currentPosition.coords.accuracy;
+			var url = 'http://greatgonzo.net/fivecorners/ajax.php?action=checkin&broadcast=public&venueId=' + venue + '&ll=' + currentPosition.coords.latitude + ',' + currentPosition.coords.longitude + '&llAcc=' + currentPosition.coords.accuracy;
 			if(shout){
 				url = url + '&shout=' + encodeURIComponent(shout);
 			}
@@ -296,7 +297,7 @@ $(document).ready(function(){
 
 	$(document).bind("data:friends", function(e, data){
 	
-		$('#friends-list').html('<menu><a href="ajax.php?action=friends" data-action="action:getfriends">refresh</a></menu>');
+		$('#friends-list').html('<menu><a href="http://greatgonzo.net/fivecorners/ajax.php?action=friends" data-action="action:getfriends">refresh</a></menu>');
 		
 		var i = 0, nameparts = [], friend = {};
 		
@@ -393,19 +394,19 @@ $(document).ready(function(){
 	$(document).bind("data:position",function(e, position){
 
 		$('header span.location').html('[' +  position.coords.latitude + ', ' + position.coords.longitude + ' (' + position.coords.accuracy + ')]');
-		if(position.coords.accuracy < 500){
+		if(position.coords.accuracy < 500 || position.coords.accuracy == null){
 			fc.stopPosWatch();
 			fc.getVenues();
 		}
 		else{
-			$(document).trigger("error:other", 'Although we got your position coordinates, the accuracy (' + position.coords.accuracy + 'm) is not good enough for the application to work correctly. Please, wait till we get a better position. If you are in a hurry, we can show you <a href="ajax.php?action=venues" data-action="action:getvenues">venues nearby this position.</a>');
+			$(document).trigger("error:other", 'Although we got your position coordinates, the accuracy (' + position.coords.accuracy + 'm) is not good enough for the application to work correctly. Please, wait till we get a better position. If you are in a hurry, we can show you <a href="http://greatgonzo.net/fivecorners/ajax.php?action=venues" data-action="action:getvenues">venues nearby this position.</a>');
 		}
 
 	});
 	
 	$(document).bind("data:venues", function(e, data){
 
-		$('#venues-list').html('<menu><a href="ajax.php?action=venues" data-action="action:getposition">refersh</a></menu>');
+		$('#venues-list').html('<menu><a href="http://greatgonzo.net/fivecorners/ajax.php?action=venues" data-action="action:getposition">refersh</a></menu>');
 		
 		var groups = data.groups.length;
 	
@@ -430,7 +431,7 @@ $(document).ready(function(){
 				for(var c = 0; c < cats; c += 1){
 					categories.push(venue.categories[c].name);
 				}
-				var $li = $('<li><h3>' + venue.name + '</h3><p>' + categories.join(', ') + '; ' + venue.hereNow.count + ' people here</p><p>' + address.join(', ') + '&nbsp;</p><menu><a href="ajax.php?action=checkin&amp;vid=' + venue.id + '" data-action="action:checkin" data-venue="' + venue.id + '">checkin</a> &#9660; <ul><li><a href="ajax.php?action=checkin&amp;vid=' + venue.id + '" data-action="action:shoutcheckin" data-venue="' + venue.id + '" data-vname="' + venue.name.replace('"','&quote;') + '">add shout</a></li><li><a href="ajax.php?action=tips&amp;venue=' + venue.id + '" data-action="action:gettips" data-venue="' + venue.id + '" data-venueName="' + venue.name.replace('"','&quot;') + '">tips</a></li></ul></menu></li>');
+				var $li = $('<li><h3>' + venue.name + '</h3><p>' + categories.join(', ') + '; ' + venue.hereNow.count + ' people here</p><p>' + address.join(', ') + '&nbsp;</p><menu><a href="http://greatgonzo.net/fivecorners/ajax.php?action=checkin&amp;vid=' + venue.id + '" data-action="action:checkin" data-venue="' + venue.id + '">checkin</a> &#9660; <ul><li><a href="http://greatgonzo.net/fivecorners/ajax.php?action=checkin&amp;vid=' + venue.id + '" data-action="action:shoutcheckin" data-venue="' + venue.id + '" data-vname="' + venue.name.replace('"','&quote;') + '">add shout</a></li><li><a href="http://greatgonzo.net/fivecorners/ajax.php?action=tips&amp;venue=' + venue.id + '" data-action="action:gettips" data-venue="' + venue.id + '" data-venueName="' + venue.name.replace('"','&quot;') + '">tips</a></li></ul></menu></li>');
 				
 				$li.attr('data-venue', JSON.stringify(venue) );
 				
@@ -682,7 +683,8 @@ $(document).ready(function(){
 		$('#app-content section:visible').not($tab).hide();
 		$tab.show();
 		
-		var n = Date.now();
+		var d = new Date();
+		var n = d.getTime();
 		var l = $tab.data('updated');
 		var a = $tab.data('update-action');
 		
@@ -697,7 +699,7 @@ $(document).ready(function(){
 		fc.getUser();
 	}
 	else{
-		$(document).trigger("error:other", 'Your browser does not support GeoLocation, sorry. You better use <a href="m.foursquare.com">Foursquare mobile site</a>.');
+		$(document).trigger("error:other", 'Your browser does not support GeoLocation, sorry. You better use <a href="http://m.foursquare.com">Foursquare mobile site</a>.');
 	}
 
 });
