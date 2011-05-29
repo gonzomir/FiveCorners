@@ -7,7 +7,7 @@ var fc = (function () {
 			'Timeout'
 		];
 		
-	var baseURL = baseURL + '';
+	var baseURL = 'http://greatgonzo.net/fivecorners/';
 	//var baseURL = '';
 	
 	var currentPosition = {}, lastPosition = {}, hasGeoLocation = false, hasLocalStorage = false, posWatch = null;
@@ -31,6 +31,8 @@ var fc = (function () {
 		hasGeoLocation: hasGeoLocation,
 
 		hasLocalStorage: hasLocalStorage,
+		
+		baseURL: baseURL,
 
 		getPosition: function(){
 
@@ -86,13 +88,16 @@ var fc = (function () {
 				return;
 			}
 			
-			var url = baseURL + 'ajax.php?action=venues&limit=30&ll=' + currentPosition.coords.latitude + ',' + currentPosition.coords.longitude + '&llAcc=' + currentPosition.coords.accuracy;
+			var url = baseURL + 'ajax.php?action=venues&limit=30&ll=' + currentPosition.coords.latitude + ',' + currentPosition.coords.longitude;
+			if(currentPosition.coords.accuracy !== null){
+				url +=  '&llAcc=' + currentPosition.coords.accuracy;
+			}
 	
 			$.ajax({
 				url: url, 
 				dataType: 'json',
 				success: function(data, textStatus, XMLHttpRequest){
-				
+					
 						if( data.meta.code != 200 ){
 							$(document).trigger("error:other", data.meta.errorDetail);
 							return false;
@@ -117,7 +122,8 @@ var fc = (function () {
 				var stips = window.localStorage.getItem('tips:' + id);
 				if(stips && stips != 'undefined'){
 					var tips = JSON.parse(stips);
-					var now = Date.now() / 1000;
+					var d = new Date();
+					var now = d.getTime() / 1000;
 					if(tips.meta.timestamp > now - 60*60){
 						$(document).trigger("data:tips", tips.response);
 						return;
@@ -136,7 +142,8 @@ var fc = (function () {
 						}
 					
 						data.response.venueName = venueName;
-						data.meta.timestamp = Date.now() / 1000;
+						var d = new Date();
+						data.meta.timestamp = d.getTime() / 1000;
 
 						if(hasLocalStorage){
 							localStorage.setItem('tips:' + id, JSON.stringify(data));
@@ -246,7 +253,10 @@ var fc = (function () {
 	
 		checkin: function(venue, shout){
 
-			var url = baseURL + 'ajax.php?action=checkin&broadcast=public&venueId=' + venue + '&ll=' + currentPosition.coords.latitude + ',' + currentPosition.coords.longitude + '&llAcc=' + currentPosition.coords.accuracy;
+			var url = baseURL + 'ajax.php?action=checkin&broadcast=public&venueId=' + venue + '&ll=' + currentPosition.coords.latitude + ',' + currentPosition.coords.longitude;
+			if(currentPosition.coords.accuracy !== null){
+				url = url  + '&llAcc=' + currentPosition.coords.accuracy;
+			}
 			if(shout){
 				url = url + '&shout=' + encodeURIComponent(shout);
 			}
@@ -333,7 +343,8 @@ $(document).ready(function(){
 		$('#app-content section:visible').not('#friends-list').hide();
 		$('#friends-list').show();
 		
-		$('#friends-list').data('updated', Date.now());
+		var d = new Date();
+		$('#friends-list').data('updated', d.getTime());
 
 	});
 
@@ -364,7 +375,8 @@ $(document).ready(function(){
 		}
 		
 		var checkinTime = lastCheckin.createdAt;
-		var now = Date.now() / 1000;
+		var d = new Date();
+		var now = d.getTime() / 1000;
 		var minutes = Math.round((now - checkinTime) / 60);
 		var hours = Math.floor(minutes/60);
 		minutes = minutes - hours * 60;
@@ -413,7 +425,7 @@ $(document).ready(function(){
 		var groups = data.groups.length;
 	
 		for (var g = 0; g<groups; g++){
-		
+
 			$('#venues-list').append('<h2>' + data.groups[g].name + '</h2>');
 			
 			var venues = data.groups[g].items;
@@ -424,6 +436,7 @@ $(document).ready(function(){
 			var $ul = $(ul);
 	
 			for(var i = 0; i < v; i += 1){
+
 				var venue = venues[i];
 				var address = [];
 				if (venue.location.address) address.push(venue.location.address);
@@ -433,7 +446,9 @@ $(document).ready(function(){
 				for(var c = 0; c < cats; c += 1){
 					categories.push(venue.categories[c].name);
 				}
-				var $li = $('<li><h3>' + venue.name + '</h3><p>' + categories.join(', ') + '; ' + venue.hereNow.count + ' people here</p><p>' + address.join(', ') + '&nbsp;</p><menu><a href="http://greatgonzo.net/fivecorners/ajax.php?action=checkin&amp;vid=' + venue.id + '" data-action="action:checkin" data-venue="' + venue.id + '">checkin</a> &#9660; <ul><li><a href="http://greatgonzo.net/fivecorners/ajax.php?action=checkin&amp;vid=' + venue.id + '" data-action="action:shoutcheckin" data-venue="' + venue.id + '" data-vname="' + venue.name.replace('"','&quote;') + '">add shout</a></li><li><a href="http://greatgonzo.net/fivecorners/ajax.php?action=tips&amp;venue=' + venue.id + '" data-action="action:gettips" data-venue="' + venue.id + '" data-venueName="' + venue.name.replace('"','&quot;') + '">tips</a></li></ul></menu></li>');
+
+				var $li = $('<li></li>');
+				$li.html('<h3>' + venue.name + '</h3><p>' + categories.join(', ') + '; ' + venue.hereNow.count + ' people here</p><p>' + address.join(', ') + '&nbsp;</p><menu><a href="' + fc.baseURL + 'ajax.php?action=checkin&amp;vid=' + venue.id + '" data-action="action:checkin" data-venue="' + venue.id + '">checkin</a> &#9660; <ul><li><a href="' + fc.baseURL + 'ajax.php?action=checkin&amp;vid=' + venue.id + '" data-action="action:shoutcheckin" data-venue="' + venue.id + '" data-vname="' + venue.name.replace('"','&quote;') + '">add shout</a></li><li><a href="' + fc.baseURL + 'ajax.php?action=tips&amp;venue=' + venue.id + '" data-action="action:gettips" data-venue="' + venue.id + '" data-venueName="' + venue.name.replace('"','&quot;') + '">tips</a></li></ul></menu>');
 				
 				$li.attr('data-venue', JSON.stringify(venue) );
 				
@@ -445,7 +460,8 @@ $(document).ready(function(){
 			$('#app-content section:visible').not('#venues-list').hide();
 			$('#venues-list').show();
 
-			$('#venues-list').data('updated', Date.now());
+			var d = new Date();
+			$('#venues-list').data('updated', d.getTime());
 
 		}
 
