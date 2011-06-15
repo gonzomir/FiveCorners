@@ -7,8 +7,8 @@ var fc = (function () {
 			'Timeout'
 		];
 		
-	var baseURL = 'http://greatgonzo.net/fivecorners/';
-	//var baseURL = '';
+	//var baseURL = 'http://greatgonzo.net/fivecorners/';
+	var baseURL = '';
 	
 	var currentPosition = {}, lastPosition = {}, hasGeoLocation = false, hasLocalStorage = false, posWatch = null;
 
@@ -406,14 +406,14 @@ $(document).ready(function(){
 
 
 	$(document).bind("data:position",function(e, position){
-
+		
 		$('header span.location').html('[' +  position.coords.latitude + ', ' + position.coords.longitude + ' (' + position.coords.accuracy + ')]');
 		if(position.coords.accuracy < 500 || position.coords.accuracy == null){
 			fc.stopPosWatch();
 			fc.getVenues();
 		}
 		else{
-			$(document).trigger("error:other", 'Although we got your position coordinates, the accuracy (' + position.coords.accuracy + 'm) is not good enough for the application to work correctly. Please, wait till we get a better position. If you are in a hurry, we can show you <a href="http://greatgonzo.net/fivecorners/ajax.php?action=venues" data-action="action:getvenues">venues nearby this position.</a>');
+			$(document).trigger("message:info", 'Although we got your position coordinates, the accuracy (' + position.coords.accuracy + 'm) is not good enough for the application to work correctly. Please, wait till we get a better position. <button type="button" data-action="action:getvenues">Get venues anyway</button>');
 		}
 
 	});
@@ -582,7 +582,15 @@ $(document).ready(function(){
 
 	});
 	
-	$(document).delegate('a[data-action]', 'click', function(e){
+	$(document).bind("message:info", function(e, message_text){
+
+		$('#message').html('<p>' + message_text + '</p>');
+		$('#app-content section:visible').not('#message').hide();
+		$('#message').show();
+
+	});
+	
+	$(document).delegate('a[data-action], button[data-action]', 'click', function(e){
 		
 		e.preventDefault();
 		e.stopPropagation();
@@ -642,6 +650,7 @@ $(document).ready(function(){
 		$('#app-content section:visible').not('#message').hide();
 		$('#message').show();
 
+		fc.stopPosWatch();
 		fc.getVenues();
 
 	});
