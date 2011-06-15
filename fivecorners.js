@@ -499,14 +499,12 @@ $(document).ready(function(){
 			$div.append('<p>' + checkin.mayor + '</p>');
 		}
 	
-		/*
 		if(checkin.badges && checkin.badges.length>0){
 			var b = checkin.badges.length;
 			for( var i = 0; i < b; i += 1 ){
-				$div.append('<img class="badge" alt="" src="' + checkin.badges[i].image + '" /><h3>You\'ve unlocked  ' + checkin.badges[i].name + '</h3><p>' + checkin.badges[i].description + '</p>');
+				$div.append('<h4>You\'ve unlocked  ' + checkin.badges[i].name + '</h4><p>' + checkin.badges[i].description + '</p>');
 			}
 		}
-		*/
 
 		$('#message').append($div);
 		$('#app-content section:visible').not('#message').hide();
