@@ -7,7 +7,6 @@ var fc = (function () {
 			'Timeout'
 		];
 		
-	//var baseURL = 'http://greatgonzo.net/fivecorners/';
 	var baseURL = '';
 	
 	var currentPosition = {}, lastPosition = {}, hasGeoLocation = false, hasLocalStorage = false, posWatch = null;
