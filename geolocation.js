@@ -43,7 +43,7 @@
 				geolocation.api = new BlackberryLocation();
 
 			// Checks for Nokia WRT support
-            } else if (typeof(com.nokia)!="undefined" && typeof(com.nokia.device)!="undefined") {
+            } else if (typeof(com)!="undefined" && typeof(com.nokia)!="undefined" && typeof(com.nokia.device)!="undefined") {
 
 				geolocation.type = 'Nokia WRT';
 				geolocation.api = com.nokia.device.load("", "com.nokia.device.geolocation");
@@ -62,7 +62,7 @@
 		} catch(e) {
 
 			if (typeof(console) != "undefined") {
-				console.log(e);
+				console.log(e.message);
 			}
 
 		}
