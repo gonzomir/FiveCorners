@@ -1,9 +1,10 @@
-#version 20110615v1
+#version 20110730v1
 CACHE MANIFEST
 jquery.js
 json2.js
 geolocation.js
 fivecorners.js
 style.css
+icon_16.png
 loading.gif
 
