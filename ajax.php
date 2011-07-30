@@ -110,6 +110,15 @@ try{
 		
 			break;
 		
+		case 'venue':
+	
+			unset($_GET['action']);
+		
+			$venue = $foursquareObj->get('/venues/'.$_GET['venue']);
+			echo $venue->responseText;
+		
+			break;
+		
 		case 'tips':
 	
 			unset($_GET['action']);

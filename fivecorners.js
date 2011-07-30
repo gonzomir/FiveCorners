@@ -87,7 +87,7 @@ var fc = (function () {
 				return;
 			}
 			
-			var url = baseURL + 'ajax.php?action=venues&limit=30&ll=' + currentPosition.coords.latitude + ',' + currentPosition.coords.longitude;
+			var url = baseURL + 'ajax.php?action=venues&limit=50&ll=' + currentPosition.coords.latitude + ',' + currentPosition.coords.longitude;
 			if(currentPosition.coords.accuracy !== null){
 				url +=  '&llAcc=' + currentPosition.coords.accuracy;
 			}
@@ -113,6 +113,51 @@ var fc = (function () {
 
 			});
 	
+		},
+
+		getVenue: function(id){
+			
+			if(hasLocalStorage){
+				var venues = window.localStorage.getItem('venue:' + id);
+				if(venues && venues != 'undefined'){
+					var venue = JSON.parse(venues);
+					var d = new Date();
+					var now = d.getTime() / 1000;
+					if(venue.meta.timestamp > now - 24*60*60){
+						$(document).trigger("data:venue", venue.response);
+						return;
+					}
+				}
+			}
+
+			$.ajax({
+				url: baseURL + 'ajax.php?action=venue&venue=' + id, 
+				dataType: 'json',
+				success: function(data, textStatus, XMLHttpRequest){
+					
+						if( data.meta.code != 200 ){
+							$(document).trigger("error:other", data.meta.errorDetail);
+							return false;
+						}
+					
+						var d = new Date();
+						data.meta.timestamp = d.getTime() / 1000;
+
+						if(hasLocalStorage){
+							localStorage.setItem('venue:' + id, JSON.stringify(data));
+						}
+
+						$(document).trigger("data:venue", data.response);
+
+					},
+				error: function(XMLHttpRequest, textStatus, errorThrown){
+
+						$(document).trigger("error:http", XMLHttpRequest);
+
+					}
+
+			});
+						
 		},
 
 		getTips: function(id, venueName){
@@ -447,7 +492,7 @@ $(document).ready(function(){
 				}
 
 				var $li = $('<li></li>');
-				$li.html('<h3>' + venue.name + '</h3><p>' + categories.join(', ') + '; ' + venue.hereNow.count + ' people here</p><p>' + address.join(', ') + '&nbsp;</p><menu><a href="' + fc.baseURL + 'ajax.php?action=checkin&amp;vid=' + venue.id + '" data-action="action:checkin" data-venue="' + venue.id + '">checkin</a> &#9660; <ul><li><a href="' + fc.baseURL + 'ajax.php?action=checkin&amp;vid=' + venue.id + '" data-action="action:shoutcheckin" data-venue="' + venue.id + '" data-vname="' + venue.name.replace('"','&quote;') + '">add shout</a></li><li><a href="' + fc.baseURL + 'ajax.php?action=tips&amp;venue=' + venue.id + '" data-action="action:gettips" data-venue="' + venue.id + '" data-venueName="' + venue.name.replace('"','&quot;') + '">tips</a></li></ul></menu>');
+				$li.html('<h3>' + venue.name + '</h3><p>' + categories.join(', ') + '; ' + venue.hereNow.count + ' people here</p><p>' + address.join(', ') + '&nbsp;</p><menu><a href="' + fc.baseURL + 'ajax.php?action=checkin&amp;vid=' + venue.id + '" data-action="action:checkin" data-venue="' + venue.id + '">checkin</a> &#9660; <ul><li><a href="' + fc.baseURL + 'ajax.php?action=checkin&amp;vid=' + venue.id + '" data-action="action:shoutcheckin" data-venue="' + venue.id + '" data-vname="' + venue.name.replace('"','&quote;') + '">add shout</a></li><li><a href="' + fc.baseURL + 'ajax.php?action=tips&amp;venue=' + venue.id + '" data-action="action:getvenue" data-venue="' + venue.id + '">details</a></li></ul></menu>');
 				
 				$li.attr('data-venue', JSON.stringify(venue) );
 				
@@ -514,6 +559,94 @@ $(document).ready(function(){
 	});
 
 	
+	$(document).bind("data:venue", function(e, data){
+		
+		var venue = data.venue;
+		
+		var $m = $('#message');
+		
+		$m.html('<h2>' + venue.name + '</h2>');
+		
+		//$m.append('<pre>' + JSON.stringify(venue) + '</pre>');
+		
+
+		var address = [];
+		if (venue.location.address) address.push(venue.location.address);
+		if (venue.location.city) address.push(venue.location.city);
+		var categories = [];
+		var cats = venue.categories.length;
+		for(var c = 0; c < cats; c += 1){
+			categories.push(venue.categories[c].name);
+		}
+
+		$m.append('<p>' + categories.join(', ') + '</p><p>' + address.join(', ') + '</p><p><button data-action="action:checkin" data-venue="' + venue.id + '">checkin here</button><button data-action="action:shoutcheckin" data-venue="' + venue.id + '" data-vname="' + venue.name.replace('"','&quote;') + '">checkin with shout</button></p>');
+		
+		var mayor = venue.mayor;
+		if(mayor.count>0){
+			$m.append('<h3>Mayor</h3><p>' + mayor.user.firstName + ' ' + mayor.user.lastName + ' from ' + mayor.user.homeCity + '</p>');
+		}
+		else{
+			$m.append("<h3>Mayor</h3><p>This venue doesn't have a mayour yet.</p>");
+		}
+		
+		if(venue.specials.length > 0){
+			$m.append('<h3>Specials</h3>');
+				
+				var specials = venue.specials;
+
+				var ul = document.createElement('ul');
+				var $ul = $(ul);
+		
+				var specialsCount = specials.length;
+				for( var i = 0; i < specialsCount; i++ ){
+					var sp = specials[i];
+					$ul.append('<li><h4> ' + sp.title + '</h4><p>' + sp.message + '</p><p>' + sp.description + '</p></li>');
+				}
+				
+				$m.append($ul);
+				
+		}
+
+
+		if(venue.tips.count > 0){
+			
+			var groups = venue.tips.groups.length;
+			
+			for(g = 0; g < groups; g++){
+				
+				var group = venue.tips.groups[g];
+
+				$m.append('<h3>' + group.name + '</h3>');
+			
+				var ul = document.createElement('ul');
+				var $ul = $(ul);
+		
+				var tipsCount = group.items.length;
+				for( var i = 0; i < tipsCount; i++ ){
+					var tip = group.items[i];
+					var user = tip.user;
+					var nameparts = [];
+
+					if(user.firstName != ''){
+						nameparts.push(user.firstName);
+					}
+					if(user.lastName != ''){
+						nameparts.push(user.lastName);
+					}
+					$ul.append('<li><strong>' + nameparts.join(' ') + '</strong> from ' + user.homeCity + ' says:<p>' + tip.text + '</p></li>');
+				}
+
+				$m.append($ul);
+
+			}
+
+		}
+		
+		$('#app-content section:visible').not('#message').hide();
+		$m.show();
+		
+	});
+
 	$(document).bind("data:tips", function(e, data){
 
 		if( $('#message div.checked-in').size() == 0 ){
@@ -652,6 +785,17 @@ $(document).ready(function(){
 
 	});
 	
+	$(document).bind("action:getvenue", function(e, el){
+
+		$('#message').html('<div class="loading"></div>');
+		$('#app-content section:visible').not('#message').hide();
+		$('#message').show();
+
+		var venue = $(el).data('venue');
+		fc.getVenue(venue);
+
+	});
+
 	$(document).bind("action:gettips", function(e, el){
 
 		$('#message').html('<div class="loading"></div>');
