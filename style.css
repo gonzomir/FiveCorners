@@ -50,16 +50,20 @@ menu {
 	margin-top: -50px;
 	padding: 0 8px 0 0;
 	border: 1px solid #1B6CB5;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
 	border-radius: 5px;
 	background: #fff;
 	color: #1B6CB5;
 }
+
 menu a {
 	border: none;
 	border-right: 1px solid #1B6CB5;
 	border-top-right-radius: 0;
 	border-bottom-right-radius: 0;
 }
+
 menu ul {
 	display: none;
 	position: absolute;
@@ -77,15 +81,14 @@ menu ul {
 	list-style-type: none;
 	background: #fff;
 }
-menu:focus ul {
-/*	display: block;*/
-}
+
 menu ul li {
 	margin: 0;
 	padding: 0;
 	border: none;
 	border-top: 1px solid #1B6CB5;
 }
+
 menu ul a {
 	display: block;
 	border: none;
@@ -102,11 +105,21 @@ a, button {
 	display: inline-block;
 	padding: 5px 5px;
 	border: 1px solid #1B6CB5;
+	-webkir-border-radius: 5px;
+	-moz-border-radius: 5px;
 	border-radius: 5px;
 	background: #fff;
 	color: #1B6CB5;
 	text-decoration: none;
 	font-weight: bold;
+}
+
+a:focus, button:focus, a:hover, button:hover {
+	box-shadow: 0 0 3px 2px #0CBADF;
+}
+
+a:active, button:active {
+	box-shadow: inset 0 0 3px 2px #0CBADF;
 }
 
 #message a {
@@ -127,9 +140,6 @@ button {
 	text-align: center;
 }
 
-header h1 {
-}
-
 header nav {
 	float: none;
 	clear: both;
@@ -146,7 +156,7 @@ nav ul {
 header nav li {
 	float:left;
 	margin: 0;
-	padding: 0;
+	padding: 5px 0 0 5px;
 }
 
 header nav li a {
@@ -155,6 +165,14 @@ header nav li a {
 	border-bottom-right-radius: 0;
 	font-size: 20px;
 	padding: 10px 15px;
+}
+
+header nav li a:hover, header nav li a:focus {
+	box-shadow: 0 0 3px 2px #fff;
+}
+
+header nav li a:active {
+	box-shadow: inset 0 0 3px 2px #ccc;
 }
 
 header p {
@@ -230,6 +248,8 @@ header menu {
 	margin: 0 20px 0 0;
 	padding: 0;
 	border: 1px solid #1B6CB5;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
 	border-radius: 5px;
 	background: #fff;
 	color: #1B6CB5;
