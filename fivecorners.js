@@ -9,7 +9,7 @@ var fc = (function () {
 		
 	var baseURL = '';
 	
-	var currentPosition = {}, lastPosition = {}, hasGeoLocation = false, hasLocalStorage = false, posWatch = null;
+	var user = {}, currentPosition = {}, lastPosition = {}, hasGeoLocation = false, hasLocalStorage = false, posWatch = null;
 
 	if (navigator.geolocation){
 		hasGeoLocation = true;
@@ -210,27 +210,73 @@ var fc = (function () {
 		getUser: function(){
 			
 			var data = false;
+			var me = this;
 			
 			if(hasLocalStorage){
-				var user = window.localStorage.getItem('user');
-				if(user && user != 'undefined'){
-					data = $.parseJSON(user);
-					$(document).trigger("data:user", data.response);
+				var users = window.localStorage.getItem('user');
+				if(users && users != 'undefined'){
+					me.user = $.parseJSON(users);
+					$(document).trigger("data:user", me.user);
 				}
 			}
 			if(!data){
 
 				$.ajax({
 					url: baseURL + 'ajax.php?action=user', 
-					success: function(d, textStatus, XMLHttpRequest){
+					dataType: 'json',
+					success: function(data, textStatus, XMLHttpRequest){
 				
+							if( data.meta.code != 200 ){
+								$(document).trigger("error:other", data.meta.errorDetail);
+								return false;
+							}
+					
+							me.user = data.response;
+							$(document).trigger("data:user", me.user);
+							
 							if(hasLocalStorage){
-								localStorage.setItem('user', XMLHttpRequest.responseText);
+								localStorage.setItem('user', JSON.stringify(me.user));
 							}
 
-							data = $.parseJSON(XMLHttpRequest.responseText);
-							$(document).trigger("data:user", data.response);
+							me.getSettings();
 
+						},
+					error: function(XMLHttpRequest, textStatus, errorThrown){
+
+							$(document).trigger("error:http", XMLHttpRequest);
+
+						}
+
+				});
+			
+			}
+		
+		},
+		
+		getSettings: function(){
+
+			var hasSettings = false;
+			var me = this;
+			
+			if(hasLocalStorage){
+				if(me.user && typeof(me.user != 'undefined') && typeof(me.user.settings) != 'undefined'){
+					hasSettings = true;
+					return;
+				}
+			}
+			if(!hasSettings){
+
+				$.ajax({
+					url: baseURL + 'ajax.php?action=settings', 
+					dataType: 'json',
+					success: function(data, textStatus, XMLHttpRequest){
+				
+							me.user.settings = data.response.settings;
+							
+							if(hasLocalStorage){
+								localStorage.setItem('user', JSON.stringify(me.user));
+							}
+							
 						},
 					error: function(XMLHttpRequest, textStatus, errorThrown){
 
@@ -297,13 +343,24 @@ var fc = (function () {
 	
 		checkin: function(venue, shout){
 
-			var url = baseURL + 'ajax.php?action=checkin&broadcast=public&venueId=' + venue + '&ll=' + currentPosition.coords.latitude + ',' + currentPosition.coords.longitude;
+			var url = baseURL + 'ajax.php?action=checkin&venueId=' + venue + '&ll=' + currentPosition.coords.latitude + ',' + currentPosition.coords.longitude;
 			if(currentPosition.coords.accuracy !== null){
 				url = url  + '&llAcc=' + currentPosition.coords.accuracy;
 			}
 			if(shout){
 				url = url + '&shout=' + encodeURIComponent(shout);
 			}
+			
+			var bcast = 'public';
+			if(this.user.settings && this.user.settings.sendToTwitter){
+				bcast =  bcast + ',twitter';
+			}
+			if(this.user.settings && this.user.settings.sendToFacebook){
+				bcast =  bcast + ',facebook';
+			}
+			
+			url = url + '&broadcast=' + bcast;
+			
 
 			$.ajax({
 				url: url, 
@@ -334,7 +391,7 @@ var fc = (function () {
 $(document).ready(function(){
 	
 	$(document).bind("data:user", function(e, data){
-	
+		
 		var nameparts = [];
 		if(data.user.firstname != ''){
 			nameparts.push(data.user.firstName);

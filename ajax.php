@@ -83,6 +83,13 @@ try{
 		
 			break;
 		
+		case 'settings':
+	
+			$user = $foursquareObj->get('/settings/all');
+			echo $user->responseText;
+		
+			break;
+		
 		case 'friends':
 	
 			unset($_GET['action']);
@@ -131,7 +138,7 @@ try{
 		case 'checkin':
 		
 			unset($_GET['action']);
-		
+			
 			$checkin = $foursquareObj->post('/checkins/add',$_GET);
 			file_put_contents('tests.txt', print_r(json_decode(stripslashes($checkin->responseText)), true), FILE_APPEND);
 			echo $checkin->responseText;
