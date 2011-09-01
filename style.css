@@ -4,16 +4,18 @@ body {
 	background: #fff;
 	color: #333;
 	font-size: 18px;
-	font-family: "Gil Sans", "Helvetika", sans-serif;
+	font-family: "Helvetika", sans-serif;
 	line-height: 1.2em;
 	text-align: left;
 }
+
 header {
 	display: block;
 	padding: 10px 20px 0px 20px;
 	background: #0CBADF;
 	color: #fff;
 }
+
 h1 {
 	font-size: 30px;
 	font-weight: bold;
@@ -21,6 +23,7 @@ h1 {
 	line-height: 1.5em;
 	margin: 0;
 }
+
 h2 {
 	font-size: 24px;
 	font-weight: bold;
@@ -28,15 +31,16 @@ h2 {
 	margin: 1em 20px .8em 20px;
 	color: #1B6CB5;
 }
+
 h3 {
 	font-size: 20px;
 	margin:0;
 }
+
 h4 {
 	font-size: 18px;
 	margin:0;
 }
-
 
 nav, menu {
 	display: block;
@@ -48,54 +52,14 @@ menu {
 	position: relative;
 	margin: 0;
 	margin-top: -50px;
-	padding: 0 8px 0 0;
+	padding: 0;
 	border: 1px solid #1B6CB5;
-	-webkit-border-radius: 5px;
+	-webkir-border-radius: 5px;
 	-moz-border-radius: 5px;
 	border-radius: 5px;
 	background: #fff;
-	color: #1B6CB5;
+	z-index: 20;
 }
-
-menu a {
-	border: none;
-	border-right: 1px solid #1B6CB5;
-	border-top-right-radius: 0;
-	border-bottom-right-radius: 0;
-}
-
-menu ul {
-	display: none;
-	position: absolute;
-	top: 100%;
-	left: -1px;
-	z-index: 100;
-	width: 100%;
-	margin: 0;
-	margin-top: -5px;
-	padding: 5px 0;
-	border: 1px solid #1B6CB5;
-	border-top: none;
-	border-bottom-left-radius: 5px;
-	border-bottom-right-radius: 5px;
-	list-style-type: none;
-	background: #fff;
-}
-
-menu ul li {
-	margin: 0;
-	padding: 0;
-	border: none;
-	border-top: 1px solid #1B6CB5;
-}
-
-menu ul a {
-	display: block;
-	border: none;
-	border-radius: 0;
-	margin: 0;
-}
-
 
 p {
 	margin-bottom: 1.2em;
@@ -122,7 +86,12 @@ a:active, button:active {
 	box-shadow: inset 0 0 3px 2px #0CBADF;
 }
 
-#message a {
+menu a {
+	border: none;
+	background: none;
+}
+
+#message a, h3 a {
 	display: inline;
 	padding: 0;
 	border: 0;
@@ -175,9 +144,6 @@ header nav li a:active {
 	box-shadow: inset 0 0 3px 2px #ccc;
 }
 
-header p {
-}
-
 header span.user {
 	font-weight: bold;
 }
@@ -209,14 +175,6 @@ header menu {
 	margin: 0;
 }
 
-#app-content menu ul li {
-	padding: 0;
-}
-
-#app-content menu ul a {
-	background: none;
-}
-
 #app-content section {
 	display: none;
 	position: absolute;
@@ -244,21 +202,16 @@ header menu {
 #app-content section > menu {
 	position: relative;
 	top: -10px;
+	margin: 0 20px 0;
 	float:right;
-	margin: 0 20px 0 0;
-	padding: 0;
-	border: 1px solid #1B6CB5;
-	-webkit-border-radius: 5px;
-	-moz-border-radius: 5px;
-	border-radius: 5px;
-	background: #fff;
-	color: #1B6CB5;
 }
 
-#app-content section > menu a {
+#app-content li > a {
+	display: block;
+	padding: 0;
 	border: none;
-	border-top-right-radius: 5px;
-	border-bottom-right-radius: 5px;
+	color: inherit;
+	font-weight: inherit;
 }
 
 div.checked-in {

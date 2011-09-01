@@ -34,7 +34,7 @@ var fc = (function () {
 		baseURL: baseURL,
 
 		getPosition: function(){
-
+			
 			if (hasGeoLocation){
 		
 				var me = this;
@@ -75,7 +75,7 @@ var fc = (function () {
 		},
 		
 		stopPosWatch: function(){
-			if (navigator.geolocation){
+			if (hasGeoLocation){
 				navigator.geolocation.clearWatch(posWatch);
 			}
 		},
@@ -87,9 +87,9 @@ var fc = (function () {
 				return;
 			}
 			
-			var url = baseURL + 'ajax.php?action=venues&limit=50&ll=' + currentPosition.coords.latitude + ',' + currentPosition.coords.longitude;
+			var url = baseURL + 'ajax.php?action=venues&intent=checkin&limit=50&ll=' + currentPosition.coords.latitude + ',' + currentPosition.coords.longitude;
 			if(currentPosition.coords.accuracy !== null){
-				url +=  '&llAcc=' + currentPosition.coords.accuracy;
+				url += '&llAcc=' + currentPosition.coords.accuracy;
 			}
 	
 			$.ajax({
@@ -209,7 +209,6 @@ var fc = (function () {
 
 		getUser: function(){
 			
-			var data = false;
 			var me = this;
 			
 			if(hasLocalStorage){
@@ -217,77 +216,70 @@ var fc = (function () {
 				if(users && users != 'undefined'){
 					me.user = $.parseJSON(users);
 					$(document).trigger("data:user", me.user);
+					return;
 				}
 			}
-			if(!data){
 
-				$.ajax({
-					url: baseURL + 'ajax.php?action=user', 
-					dataType: 'json',
-					success: function(data, textStatus, XMLHttpRequest){
+			$.ajax({
+				url: baseURL + 'ajax.php?action=user', 
+				dataType: 'json',
+				success: function(data, textStatus, XMLHttpRequest){
+			
+						if( data.meta.code != 200 ){
+							$(document).trigger("error:other", data.meta.errorDetail);
+							return false;
+						}
 				
-							if( data.meta.code != 200 ){
-								$(document).trigger("error:other", data.meta.errorDetail);
-								return false;
-							}
-					
-							me.user = data.response;
-							$(document).trigger("data:user", me.user);
-							
-							if(hasLocalStorage){
-								localStorage.setItem('user', JSON.stringify(me.user));
-							}
-
-							me.getSettings();
-
-						},
-					error: function(XMLHttpRequest, textStatus, errorThrown){
-
-							$(document).trigger("error:http", XMLHttpRequest);
-
+						me.user = data.response;
+						$(document).trigger("data:user", me.user);
+						
+						if(hasLocalStorage){
+							localStorage.setItem('user', JSON.stringify(me.user));
 						}
 
-				});
+						me.getSettings();
+
+					},
+				error: function(XMLHttpRequest, textStatus, errorThrown){
+
+						$(document).trigger("error:http", XMLHttpRequest);
+
+					}
+
+			});
 			
-			}
-		
 		},
 		
 		getSettings: function(){
 
-			var hasSettings = false;
 			var me = this;
 			
 			if(hasLocalStorage){
 				if(me.user && typeof(me.user != 'undefined') && typeof(me.user.settings) != 'undefined'){
-					hasSettings = true;
 					return;
 				}
 			}
-			if(!hasSettings){
 
-				$.ajax({
-					url: baseURL + 'ajax.php?action=settings', 
-					dataType: 'json',
-					success: function(data, textStatus, XMLHttpRequest){
-				
-							me.user.settings = data.response.settings;
-							
-							if(hasLocalStorage){
-								localStorage.setItem('user', JSON.stringify(me.user));
-							}
-							
-						},
-					error: function(XMLHttpRequest, textStatus, errorThrown){
-
-							$(document).trigger("error:http", XMLHttpRequest);
-
-						}
-
-				});
+			$.ajax({
+				url: baseURL + 'ajax.php?action=settings', 
+				dataType: 'json',
+				success: function(data, textStatus, XMLHttpRequest){
 			
-			}
-		
+						me.user.settings = data.response.settings;
+						
+						if(hasLocalStorage){
+							localStorage.setItem('user', JSON.stringify(me.user));
+						}
+						
+					},
+				error: function(XMLHttpRequest, textStatus, errorThrown){
+
+						$(document).trigger("error:http", XMLHttpRequest);
+
+					}
+
+			});
+			
 		},
 	
 		getFriends: function(){
@@ -549,7 +541,15 @@ $(document).ready(function(){
 				}
 
 				var $li = $('<li></li>');
-				$li.html('<h3>' + venue.name + '</h3><p>' + categories.join(', ') + '; ' + venue.hereNow.count + ' people here</p><p>' + address.join(', ') + '&nbsp;</p><menu><a href="' + fc.baseURL + 'ajax.php?action=checkin&amp;vid=' + venue.id + '" data-action="action:checkin" data-venue="' + venue.id + '">checkin</a> &#9660; <ul><li><a href="' + fc.baseURL + 'ajax.php?action=checkin&amp;vid=' + venue.id + '" data-action="action:shoutcheckin" data-venue="' + venue.id + '" data-vname="' + venue.name.replace('"','&quote;') + '">add shout</a></li><li><a href="' + fc.baseURL + 'ajax.php?action=tips&amp;venue=' + venue.id + '" data-action="action:getvenue" data-venue="' + venue.id + '">details</a></li></ul></menu>');
+				var vh = '<a href="' + fc.baseURL + 'ajax.php?action=venue&amp;venue=' + venue.id + '" data-action="action:getvenue" data-venue="' + venue.id + '">' + 
+					'<h3>' + venue.name + '</h3>' + 
+					'<p>' + categories.join(', ') + '; ' + venue.hereNow.count + ' people here</p>' + 
+					'<p>' + address.join(', ') + '&nbsp;</p>' + 
+					'</a>' + 
+					'<menu>' + 
+						'<a href="' + fc.baseURL + 'ajax.php?action=checkin&amp;vid=' + venue.id + '" data-action="action:checkin" data-venue="' + venue.id + '">checkin</a>' + 
+					'</menu>';
+				$li.html(vh);
 				
 				$li.attr('data-venue', JSON.stringify(venue) );
 				
@@ -624,9 +624,6 @@ $(document).ready(function(){
 		
 		$m.html('<h2>' + venue.name + '</h2>');
 		
-		//$m.append('<pre>' + JSON.stringify(venue) + '</pre>');
-		
-
 		var address = [];
 		if (venue.location.address) address.push(venue.location.address);
 		if (venue.location.city) address.push(venue.location.city);
@@ -882,24 +879,6 @@ $(document).ready(function(){
 		$('#message').show();
 
 		fc.getFriends();
-
-	});
-	
-
-	$('menu').live('click', function(e){
-		
-		e.stopPropagation();
-		$('menu ul:visible').not($('ul',this)).hide();
-		$('ul',this).toggle();
-		return false;
-	
-	});
-
-	$(document).delegate('*', 'click', function(e){
-
-		if(e.target.nodeName != 'MENU'){
-			$('menu ul:visible').not($(e.target)).hide();
-		}
 
 	});
 	
