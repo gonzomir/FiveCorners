@@ -121,7 +121,6 @@ var fc = (function () {
 				var venues = window.localStorage.getItem('venue:' + id);
 				if(venues && venues != 'undefined'){
 					var venue = JSON.parse(venues);
-					var d = new Date();
 					var now = d.getTime() / 1000;
 					if(venue.meta.timestamp > now - 24*60*60){
 						$(document).trigger("data:venue", venue.response);
@@ -140,7 +139,6 @@ var fc = (function () {
 							return false;
 						}
 					
-						var d = new Date();
 						data.meta.timestamp = d.getTime() / 1000;
 
 						if(hasLocalStorage){
@@ -166,7 +164,6 @@ var fc = (function () {
 				var stips = window.localStorage.getItem('tips:' + id);
 				if(stips && stips != 'undefined'){
 					var tips = JSON.parse(stips);
-					var d = new Date();
 					var now = d.getTime() / 1000;
 					if(tips.meta.timestamp > now - 60*60){
 						$(document).trigger("data:tips", tips.response);
@@ -186,7 +183,6 @@ var fc = (function () {
 						}
 					
 						data.response.venueName = venueName;
-						var d = new Date();
 						data.meta.timestamp = d.getTime() / 1000;
 
 						if(hasLocalStorage){
@@ -214,7 +210,7 @@ var fc = (function () {
 			if(hasLocalStorage){
 				var users = window.localStorage.getItem('user');
 				if(users && users != 'undefined'){
-					me.user = $.parseJSON(users);
+					me.user = JSON.parse(users);
 					$(document).trigger("data:user", me.user);
 					return;
 				}
@@ -381,6 +377,8 @@ var fc = (function () {
 })();
 
 $(document).ready(function(){
+
+	var d = new Date();
 	
 	$(document).bind("data:user", function(e, data){
 		
@@ -436,7 +434,6 @@ $(document).ready(function(){
 		$('#app-content section:visible').not('#friends-list').hide();
 		$('#friends-list').show();
 		
-		var d = new Date();
 		$('#friends-list').data('updated', d.getTime());
 
 	});
@@ -468,7 +465,6 @@ $(document).ready(function(){
 		}
 		
 		var checkinTime = lastCheckin.createdAt;
-		var d = new Date();
 		var now = d.getTime() / 1000;
 		var minutes = Math.round((now - checkinTime) / 60);
 		var hours = Math.floor(minutes/60);
@@ -561,7 +557,6 @@ $(document).ready(function(){
 			$('#app-content section:visible').not('#venues-list').hide();
 			$('#venues-list').show();
 
-			var d = new Date();
 			$('#venues-list').data('updated', d.getTime());
 
 		}
@@ -887,7 +882,7 @@ $(document).ready(function(){
 		$('#app-content section:visible').not($tab).hide();
 		$tab.show();
 		
-		var d = new Date();
+		
 		var n = d.getTime();
 		var l = $tab.data('updated');
 		var a = $tab.data('update-action');
@@ -900,6 +895,9 @@ $(document).ready(function(){
 	});
 	
 	if(fc.hasGeoLocation){
+		$('#message').html('<div class="loading"></div>');
+		$('#app-content section:visible').not('#message').hide();
+		$('#message').show();
 		fc.getUser();
 	}
 	else{
