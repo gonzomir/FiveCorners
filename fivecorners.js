@@ -9,7 +9,9 @@ var fc = (function () {
 		
 	var baseURL = '';
 	
-	var user = {}, currentPosition = {}, lastPosition = {}, hasGeoLocation = false, hasLocalStorage = false, posWatch = null;
+	var user = {}, currentPosition = {}, lastPosition = {}, 
+		hasGeoLocation = false, hasLocalStorage = false, 
+		posWatch = null, d = new Date();
 
 	if (navigator.geolocation){
 		hasGeoLocation = true;
