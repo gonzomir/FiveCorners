@@ -9,7 +9,7 @@ var fc = (function () {
 		
 	var baseURL = '';
 	
-	var user = {}, currentPosition = {}, lastPosition = {}, 
+	var token = '', user = {}, currentPosition = {}, lastPosition = {}, 
 		hasGeoLocation = false, hasLocalStorage = false, 
 		posWatch = null, d = new Date();
 
@@ -26,6 +26,19 @@ var fc = (function () {
 	}
 	
 	hasLocalStorage = supports_html5_storage();
+
+	if(document.location.hash != ''){
+		var h = document.location.hash.substr(1).split('=');
+		if(h[0] == 'access_token' && h[1] != ''){
+			token = h[1];
+			if (hasLocalStorage){
+				window.localStorage.setItem('token', token);
+			}
+		}
+	}
+	else if (hasLocalStorage){
+		token = window.localStorage.getItem('token');
+	}
 	
 	return {
 		
@@ -145,7 +158,7 @@ var fc = (function () {
 				return;
 			}
 			
-			var url = baseURL + 'ajax.php?action=venues&intent=checkin&limit=50&ll=' + currentPosition.coords.latitude + ',' + currentPosition.coords.longitude;
+			var url = 'https://api.foursquare.com/v2/venues/search?intent=checkin&limit=50&ll=' + currentPosition.coords.latitude + ',' + currentPosition.coords.longitude + '&oauth_token=' + token;
 			if(currentPosition.coords.accuracy !== null){
 				url += '&llAcc=' + currentPosition.coords.accuracy;
 			}
@@ -191,7 +204,7 @@ var fc = (function () {
 			}
 
 			$.ajax({
-				url: baseURL + 'ajax.php?action=venue&venue=' + id, 
+				url: 'https://api.foursquare.com/v2/venues/' + id + '?oauth_token=' + token, 
 				dataType: 'json',
 				success: function(data, textStatus, XMLHttpRequest){
 					
@@ -221,16 +234,14 @@ var fc = (function () {
 
 		addVenue: function(data){
 
-			var url = baseURL + 'ajax.php?action=addVenue&ll=' + currentPosition.coords.latitude + ',' + currentPosition.coords.longitude;
-
-			for(var a in data){
-				if(data[a] != undefined && data[a] != ''){
-					url = url  + '&' + a + '=' + data[a];
-				}
-			}
+			var url = 'https://api.foursquare.com/v2/venues/add?oauth_token=' + token;
 			
+			data.ll = currentPosition.coords.latitude + ',' + currentPosition.coords.longitude;
+
 			$.ajax({
-				url: url, 
+				url: url,
+				data: data,
+				type: 'POST',
 				dataType: 'json',
 				success: function(data, textStatus, XMLHttpRequest){
 				
@@ -272,7 +283,7 @@ var fc = (function () {
 			}
 
 			$.ajax({
-				url: baseURL + 'ajax.php?action=tips&venue=' + id, 
+				url: 'https://api.foursquare.com/v2/venues/' + id + '/tips?oauth_token=' + token,
 				dataType: 'json',
 				success: function(data, textStatus, XMLHttpRequest){
 					
@@ -316,7 +327,7 @@ var fc = (function () {
 			}
 
 			$.ajax({
-				url: baseURL + 'ajax.php?action=user', 
+				url: 'https://api.foursquare.com/v2/users/self?oauth_token=' + token,
 				dataType: 'json',
 				success: function(data, textStatus, XMLHttpRequest){
 			
@@ -356,7 +367,7 @@ var fc = (function () {
 			}
 
 			$.ajax({
-				url: baseURL + 'ajax.php?action=settings', 
+				url: 'https://api.foursquare.com/v2/settings/all?oauth_token=' + token,
 				dataType: 'json',
 				success: function(data, textStatus, XMLHttpRequest){
 			
@@ -380,7 +391,7 @@ var fc = (function () {
 		getFriends: function(){
 			
 			$.ajax({
-				url: baseURL + 'ajax.php?action=friends', 
+				url: 'https://api.foursquare.com/v2/users/self/friends?oauth_token=' + token,
 				dataType: 'json',
 				success: function(data, textStatus, XMLHttpRequest){
 			
@@ -405,7 +416,7 @@ var fc = (function () {
 		getFriend: function(id){
 			
 			$.ajax({
-				url: baseURL + 'ajax.php?action=friend&friend=' + id, 
+				url: 'https://api.foursquare.com/v2/users/' + id + '?oauth_token=' + token,
 				dataType: 'json',
 				success: function(data, textStatus, XMLHttpRequest){
 			
@@ -430,7 +441,7 @@ var fc = (function () {
 	
 		checkin: function(venue, shout){
 
-			var url = baseURL + 'ajax.php?action=checkin&venueId=' + venue + '&ll=' + currentPosition.coords.latitude + ',' + currentPosition.coords.longitude;
+			var url = 'https://api.foursquare.com/v2/checkins/add?venueId=' + venue + '&ll=' + currentPosition.coords.latitude + ',' + currentPosition.coords.longitude + '&oauth_token=' + token;
 			if(currentPosition.coords.accuracy !== null){
 				url = url  + '&llAcc=' + currentPosition.coords.accuracy;
 			}
@@ -480,6 +491,10 @@ $(document).ready(function(){
 	var d = new Date();
 	
 	$(document).bind("data:user", function(e, data){
+		
+		if(data.response){
+			data = data.response;
+		}
 		
 		var nameparts = [];
 		if(data.user.firstname != ''){
@@ -843,8 +858,7 @@ $(document).ready(function(){
 			if(fc.hasLocalStorage){
 				localStorage.removeItem('user');
 			}
-			var data = $.parseJSON( XMLHttpRequest.responseText );
-			document.location = data.loginurl;
+			document.location = 'https://foursquare.com/oauth2/authenticate?client_id=KWYHM31YGHLDECVLA0AR0D4S5VWRBS0YD3IT5KDXDJCJBOZA&response_type=token&redirect_uri=http://192.168.1.144/4sq_app/';
 
 		}
 		else{

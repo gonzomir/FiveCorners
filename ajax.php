@@ -2,6 +2,8 @@
 ini_set('error_reporting', E_ALL & ~E_NOTICE);
 ini_set('display_errors',1);
 
+header('Access-Control-Allow-Origin: *');
+
 $consumer_key = "KWYHM31YGHLDECVLA0AR0D4S5VWRBS0YD3IT5KDXDJCJBOZA";
 $consumer_secret = "POL2G2MIGYF54XMYILXVKBO5MBVX4DM5CEU3ONFGVZ50R5YO";
 
