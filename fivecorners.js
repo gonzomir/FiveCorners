@@ -441,12 +441,16 @@ var fc = (function () {
 	
 		checkin: function(venue, shout){
 
-			var url = 'https://api.foursquare.com/v2/checkins/add?venueId=' + venue + '&ll=' + currentPosition.coords.latitude + ',' + currentPosition.coords.longitude + '&oauth_token=' + token;
+			var url = 'https://api.foursquare.com/v2/checkins/add?&oauth_token=' + token;
+			var data = {
+				"venueId": venue,
+				"ll": currentPosition.coords.latitude + ',' + currentPosition.coords.longitude
+				}
 			if(currentPosition.coords.accuracy !== null){
-				url = url  + '&llAcc=' + currentPosition.coords.accuracy;
+				data.llAcc = currentPosition.coords.accuracy;
 			}
 			if(shout){
-				url = url + '&shout=' + encodeURIComponent(shout);
+				data.shout = shout;
 			}
 			
 			var bcast = 'public';
@@ -457,11 +461,13 @@ var fc = (function () {
 				bcast =  bcast + ',facebook';
 			}
 			
-			url = url + '&broadcast=' + bcast;
+			data.broadcast = bcast;
 			
 
 			$.ajax({
-				url: url, 
+				url: url,
+				data: data,
+				type: 'POST',
 				dataType: 'json',
 				success: function(data, textStatus, XMLHttpRequest){
 				
@@ -858,7 +864,7 @@ $(document).ready(function(){
 			if(fc.hasLocalStorage){
 				localStorage.removeItem('user');
 			}
-			document.location = 'https://foursquare.com/oauth2/authenticate?client_id=KWYHM31YGHLDECVLA0AR0D4S5VWRBS0YD3IT5KDXDJCJBOZA&response_type=token&redirect_uri=http://192.168.1.144/4sq_app/';
+			document.location = 'https://foursquare.com/oauth2/authenticate?client_id=KWYHM31YGHLDECVLA0AR0D4S5VWRBS0YD3IT5KDXDJCJBOZA&response_type=token&redirect_uri=http://greatgonzo.net/fivecorners/';
 
 		}
 		else{
