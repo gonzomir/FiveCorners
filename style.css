@@ -53,10 +53,6 @@ menu {
 	margin: 0;
 	margin-top: -50px;
 	padding: 0;
-	border: 1px solid #1B6CB5;
-	-webkir-border-radius: 5px;
-	-moz-border-radius: 5px;
-	border-radius: 5px;
 	background: #fff;
 	z-index: 20;
 }
@@ -84,11 +80,6 @@ a:focus, button:focus, a:hover, button:hover {
 
 a:active, button:active {
 	box-shadow: inset 0 0 3px 2px #0CBADF;
-}
-
-menu a {
-	border: none;
-	background: none;
 }
 
 #message a, h3 a {
