@@ -868,7 +868,17 @@ $(document).ready(function(){
 
 		}
 		else{
-			$('#message').html('<div class="error"><h3>HTTP status ' + XMLHttpRequest.status + '</h3><p>' + XMLHttpRequest.responseText + '</p></div>');
+			
+			var errorText = '';
+			try{
+				data = JSON.parse(XMLHttpRequest.responseText);
+				errorText = data.meta.errorDetail;
+			}
+			catch(e){
+				errorText = XMLHttpRequest.responseText;
+			}
+
+			$('#message').html('<div class="error"><h3>HTTP status ' + XMLHttpRequest.status + '</h3><p>' + errorText + '</p></div>');
 			$('#app-content section:visible').not('#message').hide();
 			$('#message').show();
 		}
