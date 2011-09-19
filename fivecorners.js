@@ -35,9 +35,18 @@ var fc = (function () {
 				window.localStorage.setItem('token', token);
 			}
 		}
+		else if(h[0] = 'error'){
+			//TODO: What should we do in this case? There's still no handlers set for DOM events.
+			$(document).trigger("error:other", 'oAuth error: ' + h[1]);
+		}
 	}
-	else if (hasLocalStorage){
+
+	if (token == '' && hasLocalStorage){
 		token = window.localStorage.getItem('token');
+	}
+
+	if(token == ''){
+		document.location = 'https://foursquare.com/oauth2/authenticate?client_id=KWYHM31YGHLDECVLA0AR0D4S5VWRBS0YD3IT5KDXDJCJBOZA&response_type=token&redirect_uri=http://greatgonzo.net/fivecorners/';
 	}
 	
 	return {
