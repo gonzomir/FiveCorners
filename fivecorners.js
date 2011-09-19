@@ -498,9 +498,9 @@ $(document).ready(function(){
 	});
 
 	$(document).bind("data:friends", function(e, data){
-
-		$('#friends-list').html('<menu><a href="http://greatgonzo.net/fivecorners/ajax.php?action=friends" data-action="action:getfriends">refresh</a></menu>');
-
+	
+		$('#friends-list').html('<menu><button type="button" data-action="action:getfriends">refresh</button></menu>');
+		
 		var i = 0, nameparts = [], friend = {};
 
 		var friendsCount = data.friends.count;
@@ -608,8 +608,8 @@ $(document).ready(function(){
 
 	$(document).bind("data:venues", function(e, data){
 
-		$('#venues-list').html('<menu><a href="http://greatgonzo.net/fivecorners/ajax.php?action=venues" data-action="action:getposition">refersh</a></menu>');
-
+		$('#venues-list').html('<menu><button type="button" data-action="action:getposition">refersh</button></menu>');
+		
 		var groups = data.groups.length;
 
 		for (var g = 0; g<groups; g++){
@@ -652,7 +652,7 @@ $(document).ready(function(){
 					'<p>' + address.join(', ') + '&nbsp;</p>' +
 					'</a>' +
 					'<menu>' +
-						'<a href="' + fc.baseURL + 'ajax.php?action=checkin&amp;vid=' + venue.id + '" data-action="action:checkin" data-venue="' + venue.id + '">checkin</a>' +
+						'<button type="button" data-action="action:checkin" data-venue="' + venue.id + '">checkin</button>' + 
 					'</menu>';
 				$li.html(vh);
 
@@ -741,8 +741,8 @@ $(document).ready(function(){
 			categories.push(venue.categories[c].name);
 		}
 
-		$m.append('<p>' + categories.join(', ') + '</p><p>' + address.join(', ') + '</p><p><button data-action="action:checkin" data-venue="' + venue.id + '">checkin here</button><button data-action="action:shoutcheckin" data-venue="' + venue.id + '" data-vname="' + venue.name.replace('"','&quote;') + '">checkin with shout</button></p>');
-
+		$m.append('<p>' + categories.join(', ') + '</p><p>' + address.join(', ') + '</p><p><button type="button" data-action="action:checkin" data-venue="' + venue.id + '">checkin here</button><button type="button" data-action="action:shoutcheckin" data-venue="' + venue.id + '" data-vname="' + venue.name.replace('"','&quote;') + '">checkin with shout</button></p>');
+		
 		var mayor = venue.mayor;
 		if(mayor.count>0){
 			$m.append('<h3>Mayor</h3><p>' + mayor.user.firstName + ' ' + mayor.user.lastName + ' from ' + mayor.user.homeCity + '</p>');
