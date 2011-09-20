@@ -6,8 +6,10 @@ var fc = (function () {
 			'Position unavailable, try again later. Some devices require GPS to be turned on.',
 			'Timeout'
 		];
-		
-	var baseURL = '';
+	
+	var cid = 'COYWDW4AO1U2LO41GURMNF2RFGPJL502XPH5MEL2H0HL1M2Q';
+	var uri = 'http://192.168.1.144/4sq_app/';
+	var loginURL = 'https://foursquare.com/oauth2/authenticate?display=touch&client_id=' + cid + '&response_type=token&redirect_uri=' + uri;
 	
 	var token = '', user = {}, currentPosition = {}, lastPosition = {}, 
 		hasGeoLocation = false, hasLocalStorage = false, 
@@ -46,7 +48,7 @@ var fc = (function () {
 	}
 
 	if(token == ''){
-		document.location = 'https://foursquare.com/oauth2/authenticate?client_id=KWYHM31YGHLDECVLA0AR0D4S5VWRBS0YD3IT5KDXDJCJBOZA&response_type=token&redirect_uri=http://greatgonzo.net/fivecorners/';
+		document.location = loginURL;
 	}
 	
 	return {
@@ -55,8 +57,8 @@ var fc = (function () {
 
 		hasLocalStorage: hasLocalStorage,
 		
-		baseURL: baseURL,
-		
+		loginURL: loginURL,
+
 		getPosition: function(){
 			
 			if (hasGeoLocation){
@@ -873,7 +875,7 @@ $(document).ready(function(){
 			if(fc.hasLocalStorage){
 				localStorage.removeItem('user');
 			}
-			document.location = 'https://foursquare.com/oauth2/authenticate?client_id=KWYHM31YGHLDECVLA0AR0D4S5VWRBS0YD3IT5KDXDJCJBOZA&response_type=token&redirect_uri=http://greatgonzo.net/fivecorners/';
+			document.location = fc.loginURL;
 
 		}
 		else{
