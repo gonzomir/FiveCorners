@@ -34,7 +34,7 @@ var fc = (function () {
 		hasLocalStorage: hasLocalStorage,
 		
 		baseURL: baseURL,
-
+		
 		getPosition: function(){
 			
 			if (hasGeoLocation){
@@ -82,7 +82,63 @@ var fc = (function () {
 			}
 		},
 		
-		getVenues: function(){
+		getAddress: function(){
+		
+			if(!currentPosition.address){
+
+			    var latlng = new google.maps.LatLng(currentPosition.coords.latitude, currentPosition.coords.longitude);
+			    geocoder = new google.maps.Geocoder();
+			    geocoder.geocode({'latLng': latlng}, function(results, status) {
+		            if (status == google.maps.GeocoderStatus.OK) {
+		                if (results[0]) {
+
+							var address = {};
+							address.formattedAddress = results[0].formatted_address;
+						
+							for(var c in results[0].address_components){
+								var component = results[0].address_components[c];
+								for( t in component.types ){
+									var type = component.types[t];
+									switch(type){
+										case 'street_number':
+											address.streetNumber = component.long_name;
+											break;
+										case 'route':
+											address.street = component.long_name;
+											break;
+										case 'locality':
+											address.city = component.long_name;
+											break;
+										case 'administrative_area_level_1':
+											address.region = component.long_name;
+											break;
+										case 'country':
+											address.country = component.long_name;
+											address.countryCode = component.short_name;
+											break;
+										case 'postal_code':
+											address.postalCode = component.long_name;
+											break;
+									}
+								}
+							}
+						
+							currentPosition.address = address;
+
+							$(document).trigger("data:address", address);
+						
+		                }
+		            }
+			    });
+			
+			}
+			else{
+				$(document).trigger("data:address", currentPosition.address);
+			}
+
+		},
+
+		getVenues: function(q){
 			
 			if(!currentPosition.coords){
 				$(document).trigger("error:other", 'There is no position information available yet.');
@@ -92,6 +148,9 @@ var fc = (function () {
 			var url = baseURL + 'ajax.php?action=venues&intent=checkin&limit=50&ll=' + currentPosition.coords.latitude + ',' + currentPosition.coords.longitude;
 			if(currentPosition.coords.accuracy !== null){
 				url += '&llAcc=' + currentPosition.coords.accuracy;
+			}
+			if(q != undefined && q !== ''){
+				url += '&query=' + q;
 			}
 	
 			$.ajax({
@@ -158,6 +217,44 @@ var fc = (function () {
 
 			});
 						
+		},
+
+		addVenue: function(data){
+
+			var url = baseURL + 'ajax.php?action=addVenue&ll=' + currentPosition.coords.latitude + ',' + currentPosition.coords.longitude;
+
+			for(var a in data){
+				if(data[a] != undefined && data[a] != ''){
+					url = url  + '&' + a + '=' + data[a];
+				}
+			}
+			
+			$.ajax({
+				url: url, 
+				dataType: 'json',
+				success: function(data, textStatus, XMLHttpRequest){
+				
+						if( data.meta.code!=200 ){
+							$(document).trigger("error:other", data.meta.errorDetail);
+							return false;
+						}
+						
+						data.meta.timestamp = d.getTime() / 1000;
+
+						if(hasLocalStorage){
+							localStorage.setItem('venue:' + data.response.id, JSON.stringify(data));
+						}
+
+						$(document).trigger("data:venue", data.response);
+									
+					},
+				error: function(XMLHttpRequest, textStatus, errorThrown){
+
+						$(document).trigger("error:http", XMLHttpRequest);
+					}
+
+			});
+
 		},
 
 		getTips: function(id, venueName){
@@ -556,6 +653,9 @@ $(document).ready(function(){
 			}
 
 			$('#venues-list').append($ul);
+
+			$('#venues-list').append('<h2>Venue not in the list?</h2> <form action="#" data-action="action:getvenues"> <label for="q">Venue name</label> <input name="q" id="q" type="text" required="required" /> <button type="submit">search venues</button> <button type="button" data-action="action:addvenueform">add venue</button> </form>');
+
 			$('#app-content section:visible').not('#venues-list').hide();
 			$('#venues-list').show();
 
@@ -825,14 +925,51 @@ $(document).ready(function(){
 
 	});
 
-	$(document).bind("action:getvenues", function(e, el){
+	$(document).bind("action:addvenueform", function(e, data){
+
+		var vname = data.q;
+
+		$('#name').val(vname);
+		
+		fc.getAddress();
+
+		$('#app-content section:visible').not('#addvenue').hide();
+		$('#addvenue').show();
+		
+	});
+
+	$(document).bind("action:addvenue", function(e, data){
 
 		$('#message').html('<div class="loading"></div>');
 		$('#app-content section:visible').not('#message').hide();
 		$('#message').show();
 
+		fc.addVenue(data);
+		
+	});
+
+	$(document).bind("data:address", function(e, address){
+		var fd = '';
+		if(address.formattedAddress){
+			fd = address.formattedAddress;
+		}
+		else{
+			fd = ((address.streetNumber)?address.streetNumber + ' ':'') + address.street;
+		}
+		$('#address').val(fd);
+		$('#city').val(address.city);
+		$('#state').val(address.country);
+		$('#zip').val(address.postalCode);
+	});
+
+	$(document).bind("action:getvenues", function(e, data){
+
+		$('#message').html('<div class="loading"></div>');
+		$('#app-content section:visible').not('#message').hide();
+		$('#message').show();
+		
 		fc.stopPosWatch();
-		fc.getVenues();
+		fc.getVenues(data.q);
 
 	});
 	
@@ -879,7 +1016,8 @@ $(document).ready(function(){
 
 	});
 	
-	$('header nav a').click(function(){
+	$('header nav a, a.tab').live('click', function(){
+
 		var $tab = $(this.hash);
 		$('#app-content section:visible').not($tab).hide();
 		$tab.show();
@@ -889,11 +1027,12 @@ $(document).ready(function(){
 		var l = $tab.data('updated');
 		var a = $tab.data('update-action');
 		
-		if(n - l > 600000){
+		if(a && n - l > 600000){
 			$(document).trigger(a, this);
 		}
 		
 		return false;
+
 	});
 	
 	if(fc.hasGeoLocation){

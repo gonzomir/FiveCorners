@@ -126,6 +126,15 @@ try{
 		
 			break;
 		
+		case 'addVenue':
+	
+			unset($_GET['action']);
+		
+			$venue = $foursquareObj->post('/venues/add', $_GET);
+			echo $venue->responseText;
+		
+			break;
+		
 		case 'tips':
 	
 			unset($_GET['action']);

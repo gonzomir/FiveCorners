@@ -18,6 +18,7 @@
 		<script type="text/javascript" src="platformservices.js"></script>
 		Symbian WRT END-->
 
+		<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=true"></script>
 		<script type="text/javascript" src="jquery.js"></script>
 		<script type="text/javascript" src="json2.js"></script>
 		<script type="text/javascript" src="geolocation.js"></script>
@@ -57,6 +58,22 @@
 					<input name="venue" id="venue" type="hidden" />
 					<textarea name="shout" id="shout"></textarea>
 					<button type="submit">checkin</button>
+				</form>
+			</section>
+			<section id="addvenue">
+				<h2>Add venue</h2>
+				<form action="#" data-action="action:addvenue">
+					<label for="name">Name</label>
+					<input name="name" id="name" type="text" required="required" />
+					<label for="address">Address</label>
+					<input name="address" id="address" type="text" />
+					<label for="city">City</label>
+					<input name="city" id="city" type="text" />
+					<label for="state">State</label>
+					<input name="state" id="state" type="text" />
+					<label for="zip">ZIP</label>
+					<input name="zip" id="zip" type="text" />
+					<button type="submit">add venue</button>
 				</form>
 			</section>
 		</div>
