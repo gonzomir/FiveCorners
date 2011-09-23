@@ -9,7 +9,7 @@
 		<key>MainHTML</key>
 		<string>index.html</string>
 		<key>Version</key>
-		<string>0.2</string>
+		<string>0.3</string>
 		<key>AllowNetworkAccess</key>
 		<true/>
 		<key>MiniViewEnabled</key>
