@@ -246,7 +246,8 @@ div.error h2, div.error h3 {
 }
 
 div.loading {
-	min-height: 100px;
+	padding-bottom: 100px;
 	background: URL('loading.gif') center no-repeat;
+	text-align: center;
 }
 
