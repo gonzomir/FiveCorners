@@ -113,6 +113,11 @@ label {
 	font-weight: bold;
 }
 
+header h1, header p, header nav {
+	max-width: 800px;
+	margin: 0 auto;
+}
+
 header nav {
 	float: none;
 	clear: both;
@@ -159,6 +164,9 @@ header menu {
 #app-content {
 	display: block;
 	position:relative;
+	max-width: 840px;
+	margin-left: auto;
+	margin-right: auto;
 }
 
 #app-content ul {
@@ -175,15 +183,12 @@ header menu {
 	border-top: 1px solid #ccc;
 }
 
-#app-content ul li p, header p {
+#app-content ul li p {
 	margin: 0;
 }
 
 #app-content section {
 	display: none;
-	position: absolute;
-	left: 0;
-	top: 0;
 	width:100%;
 	padding: 20px 0;
 	background: #fff;
@@ -249,5 +254,23 @@ div.loading {
 	padding-bottom: 100px;
 	background: URL('loading.gif') center no-repeat;
 	text-align: center;
+}
+
+@media screen and (max-device-width: 320px){
+	body {
+		font-size: 14px;
+	}
+	h1 {
+		font-size: 24px;
+	}
+	h2 {
+		font-size: 20px;
+	}
+	h3 {
+		font-size: 16px;
+	}
+	button, a {
+		font-size: 16px;
+	}
 }
 
