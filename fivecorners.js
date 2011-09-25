@@ -891,7 +891,15 @@ $(document).ready(function(){
 		$('#message').show();
 
 	});
+	
+	$(document).bind("message:loading", function(e, message_text){
 
+		$('#message').html('<div class="loading"><p>' + message_text + '</p></div>');
+		$('#app-content section:visible').not('#message').hide();
+		$('#message').show();
+
+	});
+	
 	$(document).delegate('a[data-action], button[data-action]', 'click', function(e){
 
 		e.preventDefault();
@@ -930,6 +938,7 @@ $(document).ready(function(){
 		var venue = data.venue;
 		var shout = data.shout;
 		if(venue){
+			$(document).trigger("message:loading", '');
 			fc.checkin(venue, shout);
 		}
 
@@ -961,9 +970,7 @@ $(document).ready(function(){
 
 	$(document).bind("action:addvenue", function(e, data){
 
-		$('#message').html('<div class="loading"></div>');
-		$('#app-content section:visible').not('#message').hide();
-		$('#message').show();
+		$(document).trigger("message:loading", '');
 
 		fc.addVenue(data);
 
@@ -985,10 +992,8 @@ $(document).ready(function(){
 
 	$(document).bind("action:getvenues", function(e, data){
 
-		$('#message').html('<div class="loading"></div>');
-		$('#app-content section:visible').not('#message').hide();
-		$('#message').show();
-
+		$(document).trigger("message:loading", 'Looking up venues.');
+		
 		fc.stopPosWatch();
 		fc.getVenues(data.q);
 
@@ -996,9 +1001,7 @@ $(document).ready(function(){
 
 	$(document).bind("action:getvenue", function(e, el){
 
-		$('#message').html('<div class="loading"></div>');
-		$('#app-content section:visible').not('#message').hide();
-		$('#message').show();
+		$(document).trigger("message:loading", 'Loading venue details.');
 
 		var venue = $(el).data('venue');
 		fc.getVenue(venue);
@@ -1007,21 +1010,18 @@ $(document).ready(function(){
 
 	$(document).bind("action:gettips", function(e, el){
 
-		$('#message').html('<div class="loading"></div>');
-		$('#app-content section:visible').not('#message').hide();
-		$('#message').show();
-
 		var venue = $(el).data('venue');
 		var venueName = $(el).data('venueName');
+
+		$(document).trigger("message:loading", 'Loading tips for ' + venueName);
+
 		fc.getTips(venue, venueName);
 
 	});
 
 	$(document).bind("action:getposition", function(e, el){
 
-		$('#message').html('<div class="loading"></div>');
-		$('#app-content section:visible').not('#message').hide();
-		$('#message').show();
+		$(document).trigger("message:loading", 'Accuiring position.');
 
 		fc.getPosition();
 
@@ -1029,9 +1029,7 @@ $(document).ready(function(){
 
 	$(document).bind("action:getfriends", function(e, el){
 
-		$('#message').html('<div class="loading"></div>');
-		$('#app-content section:visible').not('#message').hide();
-		$('#message').show();
+		$(document).trigger("message:loading", 'Locating friends.');
 
 		fc.getFriends();
 
@@ -1057,9 +1055,7 @@ $(document).ready(function(){
 	});
 
 	if(fc.hasGeoLocation){
-		$('#message').html('<div class="loading"></div>');
-		$('#app-content section:visible').not('#message').hide();
-		$('#message').show();
+		$(document).trigger("message:loading", 'Wait...');
 		fc.getUser();
 	}
 	else{
