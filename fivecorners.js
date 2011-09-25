@@ -8,8 +8,7 @@ var fc = (function () {
 		];
 	
 	var cid = 'COYWDW4AO1U2LO41GURMNF2RFGPJL502XPH5MEL2H0HL1M2Q';
-	var uri = 'http://192.168.1.144/4sq_app/';
-	var loginURL = 'https://foursquare.com/oauth2/authenticate?display=touch&client_id=' + cid + '&response_type=token&redirect_uri=' + uri;
+	var loginURL = 'https://foursquare.com/oauth2/authenticate?display=touch&client_id=' + cid + '&response_type=token&redirect_uri=' + document.location.href;
 	
 	var token = '', user = {}, currentPosition = {}, lastPosition = {}, 
 		hasGeoLocation = false, hasLocalStorage = false, 
@@ -34,7 +33,7 @@ var fc = (function () {
 		if(h[0] == 'access_token' && h[1] != ''){
 			token = h[1];
 			if (hasLocalStorage){
-				window.localStorage.setItem('token', token);
+				localStorage.setItem('token', token);
 			}
 		}
 		else if(h[0] = 'error'){
@@ -44,13 +43,9 @@ var fc = (function () {
 	}
 
 	if (token == '' && hasLocalStorage){
-		token = window.localStorage.getItem('token');
+		token = localStorage.getItem('token');
 	}
 
-	if(token == ''){
-		document.location = loginURL;
-	}
-	
 	return {
 		
 		hasGeoLocation: hasGeoLocation,
@@ -58,6 +53,8 @@ var fc = (function () {
 		hasLocalStorage: hasLocalStorage,
 		
 		loginURL: loginURL,
+		
+		isAuthenticated: (token != ''),
 
 		getPosition: function(){
 			
@@ -203,7 +200,7 @@ var fc = (function () {
 		getVenue: function(id){
 			
 			if(hasLocalStorage){
-				var venues = window.localStorage.getItem('venue:' + id);
+				var venues = localStorage.getItem('venue:' + id);
 				if(venues && venues != 'undefined'){
 					var venue = JSON.parse(venues);
 					var now = d.getTime() / 1000;
@@ -282,7 +279,7 @@ var fc = (function () {
 		getTips: function(id, venueName){
 			
 			if(hasLocalStorage){
-				var stips = window.localStorage.getItem('tips:' + id);
+				var stips = localStorage.getItem('tips:' + id);
 				if(stips && stips != 'undefined'){
 					var tips = JSON.parse(stips);
 					var now = d.getTime() / 1000;
@@ -329,7 +326,7 @@ var fc = (function () {
 			var me = this;
 			
 			if(hasLocalStorage){
-				var users = window.localStorage.getItem('user');
+				var users = localStorage.getItem('user');
 				if(users && users != 'undefined'){
 					me.user = JSON.parse(users);
 					$(document).trigger("data:user", me.user);
@@ -640,7 +637,7 @@ $(document).ready(function(){
 	
 	$(document).bind("data:venues", function(e, data){
 
-		$('#venues-list').html('<menu><button type="button" data-action="action:getposition">refersh</button></menu>');
+		$('#venues-list').html('<menu><button type="button" data-action="action:getposition">refresh</button></menu>');
 		
 		var groups = data.groups.length;
 	
@@ -874,8 +871,10 @@ $(document).ready(function(){
 
 			if(fc.hasLocalStorage){
 				localStorage.removeItem('user');
+				localStorage.removeItem('token');
 			}
-			document.location = fc.loginURL;
+			
+			$(document).trigger('message:info', '<a href="' + fc.loginURL + '" class="button">Login with Foursquare</a>');
 
 		}
 		else{
@@ -1075,6 +1074,9 @@ $(document).ready(function(){
 	});
 	
 	if(fc.hasGeoLocation){
+		if(!fc.isAuthenticated){
+			$(document).trigger('message:info', '<a href="' + fc.loginURL + '" class="button">Login with Foursquare</a>');
+		}
 		$(document).trigger("message:loading", 'Wait...');
 		fc.getUser();
 	}
