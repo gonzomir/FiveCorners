@@ -559,7 +559,7 @@ $(document).ready(function(){
 		}
 		
 		$('#friends-list').append($ul);
-		$('#app-content section:visible').not('#friends-list').hide();
+		$('#app-content section').not('#friends-list').hide();
 		$('#friends-list').show();
 		
 		$('#friends-list').data('updated', d.getTime());
@@ -685,7 +685,7 @@ $(document).ready(function(){
 
 			$('#venues-list').append('<h2>Venue not in the list?</h2> <form action="#" data-action="action:getvenues"> <label for="q">Venue name</label> <input name="q" id="q" type="text" required="required" /> <button type="submit">search venues</button> <button type="button" data-action="action:addvenueform">add venue</button> </form>');
 
-			$('#app-content section:visible').not('#venues-list').hide();
+			$('#app-content section').not('#venues-list').hide();
 			$('#venues-list').show();
 
 			$('#venues-list').data('updated', d.getTime());
@@ -734,7 +734,7 @@ $(document).ready(function(){
 		}
 
 		$('#message').append($div);
-		$('#app-content section:visible').not('#message').hide();
+		$('#app-content section').not('#message').hide();
 		$('#message').show();
 		
 		fc.getTips(data.response.checkin.venue.id, data.response.checkin.venue.name);
@@ -822,7 +822,7 @@ $(document).ready(function(){
 
 		}
 		
-		$('#app-content section:visible').not('#message').hide();
+		$('#app-content section').not('#message').hide();
 		$m.show();
 		
 	});
@@ -859,7 +859,7 @@ $(document).ready(function(){
 			$('#message').append('<p>No tips for this venue.</p>');
 		}
 		
-		$('#app-content section:visible').not('#message').hide();
+		$('#app-content section').not('#message').hide();
 		$('#message').show();
 		
 	});
@@ -889,7 +889,7 @@ $(document).ready(function(){
 			}
 
 			$('#message').html('<div class="error"><h3>HTTP status ' + XMLHttpRequest.status + '</h3><p>' + errorText + '</p></div>');
-			$('#app-content section:visible').not('#message').hide();
+			$('#app-content section').not('#message').hide();
 			$('#message').show();
 		}
 
@@ -898,7 +898,7 @@ $(document).ready(function(){
 	$(document).bind("error:other", function(e, error_message){
 
 		$('#message').html('<div class="error"><h3>Error</h3><p>' + error_message + '</p></div>');
-		$('#app-content section:visible').not('#message').hide();
+		$('#app-content section').not('#message').hide();
 		$('#message').show();
 
 	});
@@ -906,7 +906,7 @@ $(document).ready(function(){
 	$(document).bind("message:info", function(e, message_text){
 
 		$('#message').html('<p>' + message_text + '</p>');
-		$('#app-content section:visible').not('#message').hide();
+		$('#app-content section').not('#message').hide();
 		$('#message').show();
 
 	});
@@ -914,7 +914,7 @@ $(document).ready(function(){
 	$(document).bind("message:loading", function(e, message_text){
 
 		$('#message').html('<div class="loading"><p>' + message_text + '</p></div>');
-		$('#app-content section:visible').not('#message').hide();
+		$('#app-content section').not('#message').hide();
 		$('#message').show();
 
 	});
@@ -969,7 +969,7 @@ $(document).ready(function(){
 		var vname = $(el).data('vname');
 		$('#venue').val(venue);
 		$('#shoutForm h2').html('Checkin to ' + vname);
-		$('#app-content section:visible').not('#shoutForm').hide();
+		$('#app-content section').not('#shoutForm').hide();
 		$('#shoutForm').show();
 
 	});
@@ -982,7 +982,7 @@ $(document).ready(function(){
 		
 		fc.getAddress();
 
-		$('#app-content section:visible').not('#addvenue').hide();
+		$('#app-content section').not('#addvenue').hide();
 		$('#addvenue').show();
 		
 	});
@@ -1057,7 +1057,7 @@ $(document).ready(function(){
 	$('header nav a, a.tab').live('click', function(){
 
 		var $tab = $(this.hash);
-		$('#app-content section:visible').not($tab).hide();
+		$('#app-content section').not($tab).hide();
 		$tab.show();
 		
 		
@@ -1077,8 +1077,10 @@ $(document).ready(function(){
 		if(!fc.isAuthenticated){
 			$(document).trigger('message:info', '<a href="' + fc.loginURL + '" class="button">Login with Foursquare</a>');
 		}
-		$(document).trigger("message:loading", 'Wait...');
-		fc.getUser();
+		else{
+			$(document).trigger("message:loading", 'Wait...');
+			fc.getUser();
+		}
 	}
 	else{
 		$(document).trigger("error:other", 'Your browser does not support GeoLocation, sorry. You better use <a href="http://m.foursquare.com">Foursquare mobile site</a>.');
