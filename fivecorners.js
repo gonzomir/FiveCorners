@@ -1028,7 +1028,7 @@ $(document).ready(function(){
 
 	$(document).bind("action:getposition", function(e, el){
 
-		$(document).trigger("message:loading", 'Accuiring position.');
+		$(document).trigger("message:loading", 'Acquiring position.');
 
 		fc.getPosition();
 
