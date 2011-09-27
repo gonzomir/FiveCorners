@@ -764,10 +764,10 @@ $(document).ready(function(){
 		var mayor = venue.mayor;
 		if(mayor.count>0){
 			var nameparts = [];
-			if(data.user.firstname != ''){
+			if(mayor.user.firstname != ''){
 				nameparts.push(mayor.user.firstName);
 			}
-			if(data.user.lastname != ''){
+			if(mayor.user.lastname != ''){
 				nameparts.push(mayor.user.lastName);
 			}
 			$m.append('<h3>Mayor</h3><p>' + nameparts.join(' ') + ' from ' + mayor.user.homeCity + '</p>');
