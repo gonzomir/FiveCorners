@@ -745,7 +745,14 @@ $(document).ready(function(){
 		
 		var mayor = venue.mayor;
 		if(mayor.count>0){
-			$m.append('<h3>Mayor</h3><p>' + mayor.user.firstName + ' ' + mayor.user.lastName + ' from ' + mayor.user.homeCity + '</p>');
+			var nameparts = [];
+			if(data.user.firstname != ''){
+				nameparts.push(mayor.user.firstName);
+			}
+			if(data.user.lastname != ''){
+				nameparts.push(mayor.user.lastName);
+			}
+			$m.append('<h3>Mayor</h3><p>' + nameparts.join(' ') + ' from ' + mayor.user.homeCity + '</p>');
 		}
 		else{
 			$m.append("<h3>Mayor</h3><p>This venue doesn't have a mayour yet.</p>");
