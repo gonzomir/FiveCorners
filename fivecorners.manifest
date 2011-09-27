@@ -1,8 +1,6 @@
-#version 20110902v1
+#version 20110927v1
 CACHE MANIFEST
 jquery.js
-json2.js
-geolocation.js
 fivecorners.js
 style.css
 icon_16.png
