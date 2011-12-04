@@ -15,7 +15,7 @@ $foursquareObj = new EpiFoursquare($consumer_key, $consumer_secret);
 if( !isset($_COOKIE['access_token']) &&  !isset($_GET['code'])  ){
 
 	$loginurl = "";
-	
+
 	//Includes the foursquare-asyc library files
 	try{
 		$loginurl = $foursquareObj->getAuthorizeUrl($redirectUri);
@@ -64,7 +64,7 @@ if( !isset($_COOKIE['access_token']) ) {
 		header('HTTP/1.1 500 Internal Server Error');
 		echo $e->getCode().'  '.$e->getMessage();
 	}
-	
+
 	exit();
 
 
@@ -75,85 +75,85 @@ $foursquareObj->setAccessToken($_COOKIE['access_token']);
 try{
 
 	switch($_GET['action']){
-	
+
 		case 'user':
-	
+
 			$user = $foursquareObj->get('/users/self');
 			echo $user->responseText;
-		
+
 			break;
-		
+
 		case 'settings':
-	
+
 			$user = $foursquareObj->get('/settings/all');
 			echo $user->responseText;
-		
+
 			break;
-		
+
 		case 'friends':
-	
+
 			unset($_GET['action']);
-		
+
 			$friends = $foursquareObj->get('/users/self/friends');
 			echo $friends->responseText;
-		
+
 			break;
-		
+
 		case 'friend':
-	
+
 			unset($_GET['action']);
-		
+
 			$friends = $foursquareObj->get('/users/'.$_GET['friend']);
 			echo $friends->responseText;
-		
+
 			break;
-		
+
 		case 'venues':
-	
+
 			unset($_GET['action']);
-		
+
 			$venues = $foursquareObj->get('/venues/search',$_GET);
 			echo $venues->responseText;
-		
+
 			break;
-		
+
 		case 'venue':
-	
+
 			unset($_GET['action']);
-		
+
 			$venue = $foursquareObj->get('/venues/'.$_GET['venue']);
 			echo $venue->responseText;
-		
+
 			break;
-		
+
 		case 'addVenue':
-	
+
 			unset($_GET['action']);
-		
+
 			$venue = $foursquareObj->post('/venues/add', $_GET);
 			echo $venue->responseText;
-		
+
 			break;
-		
+
 		case 'tips':
-	
+
 			unset($_GET['action']);
-		
+
 			$tips = $foursquareObj->get('/venues/'.$_GET['venue'].'/tips', array('sort'=>'recent') );
 			echo $tips->responseText;
-		
+
 			break;
-		
+
 		case 'checkin':
-		
+
 			unset($_GET['action']);
-			
+
 			$checkin = $foursquareObj->post('/checkins/add',$_GET);
-			file_put_contents('tests.txt', print_r(json_decode(stripslashes($checkin->responseText)), true), FILE_APPEND);
+			file_put_contents('tests.txt', stripslashes($checkin->responseText)."\n", FILE_APPEND);
 			echo $checkin->responseText;
-		
+
 			break;
-				
+
 		default:
 			header('HTTP/1.1 501 Unimplemented');
 			echo 'Method not implemented';

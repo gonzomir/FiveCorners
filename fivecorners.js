@@ -6,17 +6,17 @@ var fc = (function () {
 			'Position unavailable, try again later. Some devices require GPS to be turned on.',
 			'Timeout'
 		];
-		
+
 	var baseURL = '';
-	
-	var user = {}, currentPosition = {}, lastPosition = {}, 
-		hasGeoLocation = false, hasLocalStorage = false, 
+
+	var user = {}, currentPosition = {}, lastPosition = {},
+		hasGeoLocation = false, hasLocalStorage = false,
 		posWatch = null, d = new Date();
 
 	if (navigator.geolocation){
 		hasGeoLocation = true;
 	}
-	
+
 	function supports_html5_storage() {
 		try {
 			return 'localStorage' in window && window['localStorage'] !== null;
@@ -24,35 +24,35 @@ var fc = (function () {
 			return false;
 		}
 	}
-	
+
 	hasLocalStorage = supports_html5_storage();
-	
+
 	return {
-		
+
 		hasGeoLocation: hasGeoLocation,
 
 		hasLocalStorage: hasLocalStorage,
-		
+
 		baseURL: baseURL,
-		
+
 		getPosition: function(){
-			
+
 			if (hasGeoLocation){
-		
+
 				var me = this;
-				
+
 				if(posWatch){
 					this.stopPosWatch();
 				}
-	
+
 				posWatch = navigator.geolocation.watchPosition(
 
-					function (position) {  
+					function (position) {
 
 						lastPosition = currentPosition;
 						currentPosition = position;
 						$(document).trigger("data:position", position);
-			
+
 					},
 					// next function is the error callback
 					function (error) {
@@ -75,15 +75,15 @@ var fc = (function () {
 			}
 
 		},
-		
+
 		stopPosWatch: function(){
 			if (hasGeoLocation){
 				navigator.geolocation.clearWatch(posWatch);
 			}
 		},
-		
+
 		getAddress: function(){
-		
+
 			if(!currentPosition.address){
 
 			    var latlng = new google.maps.LatLng(currentPosition.coords.latitude, currentPosition.coords.longitude);
@@ -94,7 +94,7 @@ var fc = (function () {
 
 							var address = {};
 							address.formattedAddress = results[0].formatted_address;
-						
+
 							for(var c in results[0].address_components){
 								var component = results[0].address_components[c];
 								for( t in component.types ){
@@ -122,15 +122,15 @@ var fc = (function () {
 									}
 								}
 							}
-						
+
 							currentPosition.address = address;
 
 							$(document).trigger("data:address", address);
-						
+
 		                }
 		            }
 			    });
-			
+
 			}
 			else{
 				$(document).trigger("data:address", currentPosition.address);
@@ -139,12 +139,12 @@ var fc = (function () {
 		},
 
 		getVenues: function(q){
-			
+
 			if(!currentPosition.coords){
 				$(document).trigger("error:other", 'There is no position information available yet.');
 				return;
 			}
-			
+
 			var url = baseURL + 'ajax.php?action=venues&intent=checkin&limit=50&ll=' + currentPosition.coords.latitude + ',' + currentPosition.coords.longitude;
 			if(currentPosition.coords.accuracy !== null){
 				url += '&llAcc=' + currentPosition.coords.accuracy;
@@ -152,12 +152,12 @@ var fc = (function () {
 			if(q != undefined && q !== ''){
 				url += '&query=' + q;
 			}
-	
+
 			$.ajax({
-				url: url, 
+				url: url,
 				dataType: 'json',
 				success: function(data, textStatus, XMLHttpRequest){
-					
+
 						if( data.meta.code != 200 ){
 							$(document).trigger("error:other", data.meta.errorDetail);
 							return false;
@@ -173,11 +173,11 @@ var fc = (function () {
 					}
 
 			});
-	
+
 		},
 
 		getVenue: function(id){
-			
+
 			if(hasLocalStorage){
 				var venues = window.localStorage.getItem('venue:' + id);
 				if(venues && venues != 'undefined'){
@@ -191,15 +191,15 @@ var fc = (function () {
 			}
 
 			$.ajax({
-				url: baseURL + 'ajax.php?action=venue&venue=' + id, 
+				url: baseURL + 'ajax.php?action=venue&venue=' + id,
 				dataType: 'json',
 				success: function(data, textStatus, XMLHttpRequest){
-					
+
 						if( data.meta.code != 200 ){
 							$(document).trigger("error:other", data.meta.errorDetail);
 							return false;
 						}
-					
+
 						data.meta.timestamp = d.getTime() / 1000;
 
 						if(hasLocalStorage){
@@ -216,7 +216,7 @@ var fc = (function () {
 					}
 
 			});
-						
+
 		},
 
 		addVenue: function(data){
@@ -228,17 +228,17 @@ var fc = (function () {
 					url = url  + '&' + a + '=' + data[a];
 				}
 			}
-			
+
 			$.ajax({
-				url: url, 
+				url: url,
 				dataType: 'json',
 				success: function(data, textStatus, XMLHttpRequest){
-				
+
 						if( data.meta.code!=200 ){
 							$(document).trigger("error:other", data.meta.errorDetail);
 							return false;
 						}
-						
+
 						data.meta.timestamp = d.getTime() / 1000;
 
 						if(hasLocalStorage){
@@ -246,7 +246,7 @@ var fc = (function () {
 						}
 
 						$(document).trigger("data:venue", data.response);
-									
+
 					},
 				error: function(XMLHttpRequest, textStatus, errorThrown){
 
@@ -258,7 +258,7 @@ var fc = (function () {
 		},
 
 		getTips: function(id, venueName){
-			
+
 			if(hasLocalStorage){
 				var stips = window.localStorage.getItem('tips:' + id);
 				if(stips && stips != 'undefined'){
@@ -272,15 +272,15 @@ var fc = (function () {
 			}
 
 			$.ajax({
-				url: baseURL + 'ajax.php?action=tips&venue=' + id, 
+				url: baseURL + 'ajax.php?action=tips&venue=' + id,
 				dataType: 'json',
 				success: function(data, textStatus, XMLHttpRequest){
-					
+
 						if( data.meta.code != 200 ){
 							$(document).trigger("error:other", data.meta.errorDetail);
 							return false;
 						}
-					
+
 						data.response.venueName = venueName;
 						data.meta.timestamp = d.getTime() / 1000;
 
@@ -298,14 +298,14 @@ var fc = (function () {
 					}
 
 			});
-						
+
 		},
-	
+
 
 		getUser: function(){
-			
+
 			var me = this;
-			
+
 			if(hasLocalStorage){
 				var users = window.localStorage.getItem('user');
 				if(users && users != 'undefined'){
@@ -316,18 +316,18 @@ var fc = (function () {
 			}
 
 			$.ajax({
-				url: baseURL + 'ajax.php?action=user', 
+				url: baseURL + 'ajax.php?action=user',
 				dataType: 'json',
 				success: function(data, textStatus, XMLHttpRequest){
-			
+
 						if( data.meta.code != 200 ){
 							$(document).trigger("error:other", data.meta.errorDetail);
 							return false;
 						}
-				
+
 						me.user = data.response;
 						$(document).trigger("data:user", me.user);
-						
+
 						if(hasLocalStorage){
 							localStorage.setItem('user', JSON.stringify(me.user));
 						}
@@ -342,13 +342,13 @@ var fc = (function () {
 					}
 
 			});
-			
+
 		},
-		
+
 		getSettings: function(){
 
 			var me = this;
-			
+
 			if(hasLocalStorage){
 				if(me.user && typeof(me.user != 'undefined') && typeof(me.user.settings) != 'undefined'){
 					return;
@@ -356,16 +356,16 @@ var fc = (function () {
 			}
 
 			$.ajax({
-				url: baseURL + 'ajax.php?action=settings', 
+				url: baseURL + 'ajax.php?action=settings',
 				dataType: 'json',
 				success: function(data, textStatus, XMLHttpRequest){
-			
+
 						me.user.settings = data.response.settings;
-						
+
 						if(hasLocalStorage){
 							localStorage.setItem('user', JSON.stringify(me.user));
 						}
-						
+
 					},
 				error: function(XMLHttpRequest, textStatus, errorThrown){
 
@@ -374,16 +374,16 @@ var fc = (function () {
 					}
 
 			});
-			
+
 		},
-	
+
 		getFriends: function(){
-			
+
 			$.ajax({
-				url: baseURL + 'ajax.php?action=friends', 
+				url: baseURL + 'ajax.php?action=friends',
 				dataType: 'json',
 				success: function(data, textStatus, XMLHttpRequest){
-			
+
 						if( data.meta.code != 200 ){
 							$(document).trigger("error:other", data.meta.errorDetail);
 							return false;
@@ -399,16 +399,16 @@ var fc = (function () {
 					}
 
 			});
-			
+
 		},
 
 		getFriend: function(id){
-			
+
 			$.ajax({
-				url: baseURL + 'ajax.php?action=friend&friend=' + id, 
+				url: baseURL + 'ajax.php?action=friend&friend=' + id,
 				dataType: 'json',
 				success: function(data, textStatus, XMLHttpRequest){
-			
+
 						if( data.meta.code != 200 ){
 							$(document).trigger("error:other", data.meta.errorDetail);
 							return false;
@@ -424,10 +424,10 @@ var fc = (function () {
 					}
 
 			});
-			
+
 		},
-	
-	
+
+
 		checkin: function(venue, shout){
 
 			var url = baseURL + 'ajax.php?action=checkin&venueId=' + venue + '&ll=' + currentPosition.coords.latitude + ',' + currentPosition.coords.longitude;
@@ -437,7 +437,7 @@ var fc = (function () {
 			if(shout){
 				url = url + '&shout=' + encodeURIComponent(shout);
 			}
-			
+
 			var bcast = 'public';
 			if(this.user.settings && this.user.settings.sendToTwitter){
 				bcast =  bcast + ',twitter';
@@ -445,22 +445,22 @@ var fc = (function () {
 			if(this.user.settings && this.user.settings.sendToFacebook){
 				bcast =  bcast + ',facebook';
 			}
-			
+
 			url = url + '&broadcast=' + bcast;
-			
+
 
 			$.ajax({
-				url: url, 
+				url: url,
 				dataType: 'json',
 				success: function(data, textStatus, XMLHttpRequest){
-				
+
 						if( data.meta.code!=200 ){
 							$(document).trigger("error:other", data.meta.errorDetail);
 							return false;
 						}
-						
+
 						$(document).trigger("action:checkedin", data);
-									
+
 					},
 				error: function(XMLHttpRequest, textStatus, errorThrown){
 
@@ -471,16 +471,16 @@ var fc = (function () {
 
 		}
 
-	}	
+	}
 
 })();
 
 $(document).ready(function(){
 
 	var d = new Date();
-	
+
 	$(document).bind("data:user", function(e, data){
-		
+
 		var nameparts = [];
 		if(data.user.firstname != ''){
 			nameparts.push(data.user.firstName);
@@ -498,18 +498,18 @@ $(document).ready(function(){
 	});
 
 	$(document).bind("data:friends", function(e, data){
-	
+
 		$('#friends-list').html('<menu><a href="http://greatgonzo.net/fivecorners/ajax.php?action=friends" data-action="action:getfriends">refresh</a></menu>');
-		
+
 		var i = 0, nameparts = [], friend = {};
-		
+
 		var friendsCount = data.friends.count;
-		
+
 		var ul = document.createElement('ul');
 		var $ul = $(ul);
 
 		for(i = 0; i < friendsCount; i += 1){
-			
+
 			friend = data.friends.items[i];
 			nameparts = [];
 
@@ -524,21 +524,21 @@ $(document).ready(function(){
 			}
 
 			$ul.append('<li id="friend-' + friend.id + '"><h3>' + nameparts.join(' ') + '</h3><p></p></li>');
-			
+
 			fc.getFriend(friend.id);
 
 		}
-		
+
 		$('#friends-list').append($ul);
 		$('#app-content section:visible').not('#friends-list').hide();
 		$('#friends-list').show();
-		
+
 		$('#friends-list').data('updated', d.getTime());
 
 	});
 
 	$(document).bind("data:friend", function(e, data){
-	
+
 		var friend = data.user;
 		var nameparts = [];
 
@@ -551,7 +551,7 @@ $(document).ready(function(){
 		if(nameparts.length<2 && friend.contact.twitter){
 			nameparts.push('@' + friend.contact.twitter);
 		}
-		
+
 		var lastCheckin = friend.checkins.items[0];
 		var venue = lastCheckin.venue;
 		var address = [];
@@ -562,7 +562,7 @@ $(document).ready(function(){
 		for(var c = 0; c < cats; c += 1){
 			categories.push(venue.categories[c].name);
 		}
-		
+
 		var checkinTime = lastCheckin.createdAt;
 		var now = d.getTime() / 1000;
 		var minutes = Math.round((now - checkinTime) / 60);
@@ -570,7 +570,7 @@ $(document).ready(function(){
 		minutes = minutes - hours * 60;
 		var days = Math.floor(hours/24);
 		hours = hours - days * 24;
-		
+
 		var before = '';
 		if(days > 1){
 			before = days + ' days';
@@ -589,12 +589,12 @@ $(document).ready(function(){
 		}
 
 		$('#friend-' + friend.id).html('<h3>' + nameparts.join(' ') + '</h3><p>was @ <strong>' + venue.name + '</strong> before ' + before + '</p><p>' + categories.join(', ') + '</p><p>' + address.join(', ') + '</p></li>');
-			
+
 	});
 
 
 	$(document).bind("data:position",function(e, position){
-		
+
 		$('header span.location').html('[' +  position.coords.latitude + ', ' + position.coords.longitude + ' (' + position.coords.accuracy + ')]');
 		if(position.coords.accuracy < 500 || position.coords.accuracy == null){
 			fc.stopPosWatch();
@@ -605,24 +605,24 @@ $(document).ready(function(){
 		}
 
 	});
-	
+
 	$(document).bind("data:venues", function(e, data){
 
 		$('#venues-list').html('<menu><a href="http://greatgonzo.net/fivecorners/ajax.php?action=venues" data-action="action:getposition">refersh</a></menu>');
-		
+
 		var groups = data.groups.length;
-	
+
 		for (var g = 0; g<groups; g++){
 
 			$('#venues-list').append('<h2>' + data.groups[g].name + '</h2>');
-			
+
 			var venues = data.groups[g].items;
 
 			var v = venues.length;
-	
+
 			var ul = document.createElement('ul');
 			var $ul = $(ul);
-	
+
 			for(var i = 0; i < v; i += 1){
 
 				var venue = venues[i];
@@ -636,20 +636,20 @@ $(document).ready(function(){
 				}
 
 				var $li = $('<li></li>');
-				var vh = '<a href="' + fc.baseURL + 'ajax.php?action=venue&amp;venue=' + venue.id + '" data-action="action:getvenue" data-venue="' + venue.id + '">' + 
-					'<h3>' + venue.name + '</h3>' + 
-					'<p>' + categories.join(', ') + '; ' + venue.hereNow.count + ' people here</p>' + 
-					'<p>' + address.join(', ') + '&nbsp;</p>' + 
-					'</a>' + 
-					'<menu>' + 
-						'<a href="' + fc.baseURL + 'ajax.php?action=checkin&amp;vid=' + venue.id + '" data-action="action:checkin" data-venue="' + venue.id + '">checkin</a>' + 
+				var vh = '<a href="' + fc.baseURL + 'ajax.php?action=venue&amp;venue=' + venue.id + '" data-action="action:getvenue" data-venue="' + venue.id + '">' +
+					'<h3>' + venue.name + '</h3>' +
+					'<p>' + categories.join(', ') + '; ' + venue.hereNow.count + ' people here</p>' +
+					'<p>' + address.join(', ') + '&nbsp;</p>' +
+					'</a>' +
+					'<menu>' +
+						'<a href="' + fc.baseURL + 'ajax.php?action=checkin&amp;vid=' + venue.id + '" data-action="action:checkin" data-venue="' + venue.id + '">checkin</a>' +
 					'</menu>';
 				$li.html(vh);
-				
+
 				$li.attr('data-venue', JSON.stringify(venue) );
-				
+
 				$ul.append($li);
-				
+
 			}
 
 			$('#venues-list').append($ul);
@@ -664,16 +664,16 @@ $(document).ready(function(){
 		}
 
 	});
-	
+
 	$(document).bind("action:checkedin", function(e, data){
 
 		$('#message').html('');
-	
+
 		var $div = $('<div class="checked-in"></div>');
-		
+
 		var checkin = {};
 		checkin.badges = [];
-		
+
 		var notifications = data.notifications;
 		var n = notifications.length;
 		for( var i = 0; i < n; i += 1 ){
@@ -690,37 +690,38 @@ $(document).ready(function(){
 					break;
 			}
 		}
-		
+
 		$div.append('<h3>' + checkin.message + '</h3>');
-		
+
 		if(checkin.mayor){
 			$div.append('<p>' + checkin.mayor + '</p>');
 		}
-	
+
 		if(checkin.badges && checkin.badges.length>0){
 			var b = checkin.badges.length;
 			for( var i = 0; i < b; i += 1 ){
-				$div.append('<h4>You\'ve unlocked  ' + checkin.badges[i].name + '</h4><p>' + checkin.badges[i].description + '</p>');
+				var badge = checkin.badges[i].badge;
+				$div.append('<h4>You\'ve unlocked  ' + badge.name + '</h4><p>' + badge.description + '</p>');
 			}
 		}
 
 		$('#message').append($div);
 		$('#app-content section:visible').not('#message').hide();
 		$('#message').show();
-		
+
 		fc.getTips(data.response.checkin.venue.id, data.response.checkin.venue.name);
 
 	});
 
-	
+
 	$(document).bind("data:venue", function(e, data){
-		
+
 		var venue = data.venue;
-		
+
 		var $m = $('#message');
-		
+
 		$m.html('<h2>' + venue.name + '</h2>');
-		
+
 		var address = [];
 		if (venue.location.address) address.push(venue.location.address);
 		if (venue.location.city) address.push(venue.location.city);
@@ -731,7 +732,7 @@ $(document).ready(function(){
 		}
 
 		$m.append('<p>' + categories.join(', ') + '</p><p>' + address.join(', ') + '</p><p><button data-action="action:checkin" data-venue="' + venue.id + '">checkin here</button><button data-action="action:shoutcheckin" data-venue="' + venue.id + '" data-vname="' + venue.name.replace('"','&quote;') + '">checkin with shout</button></p>');
-		
+
 		var mayor = venue.mayor;
 		if(mayor.count>0){
 			$m.append('<h3>Mayor</h3><p>' + mayor.user.firstName + ' ' + mayor.user.lastName + ' from ' + mayor.user.homeCity + '</p>');
@@ -739,39 +740,39 @@ $(document).ready(function(){
 		else{
 			$m.append("<h3>Mayor</h3><p>This venue doesn't have a mayour yet.</p>");
 		}
-		
+
 		if(venue.specials.length > 0){
 			$m.append('<h3>Specials</h3>');
-				
+
 				var specials = venue.specials;
 
 				var ul = document.createElement('ul');
 				var $ul = $(ul);
-		
+
 				var specialsCount = specials.length;
 				for( var i = 0; i < specialsCount; i++ ){
 					var sp = specials[i];
 					$ul.append('<li><h4> ' + sp.title + '</h4><p>' + sp.message + '</p><p>' + sp.description + '</p></li>');
 				}
-				
+
 				$m.append($ul);
-				
+
 		}
 
 
 		if(venue.tips.count > 0){
-			
+
 			var groups = venue.tips.groups.length;
-			
+
 			for(g = 0; g < groups; g++){
-				
+
 				var group = venue.tips.groups[g];
 
 				$m.append('<h3>' + group.name + '</h3>');
-			
+
 				var ul = document.createElement('ul');
 				var $ul = $(ul);
-		
+
 				var tipsCount = group.items.length;
 				for( var i = 0; i < tipsCount; i++ ){
 					var tip = group.items[i];
@@ -792,10 +793,10 @@ $(document).ready(function(){
 			}
 
 		}
-		
+
 		$('#app-content section:visible').not('#message').hide();
 		$m.show();
-		
+
 	});
 
 	$(document).bind("data:tips", function(e, data){
@@ -805,11 +806,11 @@ $(document).ready(function(){
 		}
 
 		$('#message').append('<h2>Tips for ' + data.venueName + '</h2>');
-		
+
 		if(data.tips.count > 0){
 			var ul = document.createElement('ul');
 			var $ul = $(ul);
-		
+
 			var tipsCount = data.tips.items.length;
 			for( var i = 0; i < tipsCount; i++ ){
 				var tip = data.tips.items[i];
@@ -829,13 +830,13 @@ $(document).ready(function(){
 		else{
 			$('#message').append('<p>No tips for this venue.</p>');
 		}
-		
+
 		$('#app-content section:visible').not('#message').hide();
 		$('#message').show();
-		
+
 	});
-	
-	
+
+
 	$(document).bind("error:http", function(e, XMLHttpRequest){
 
 		if(XMLHttpRequest.status == 403 || XMLHttpRequest.status == 401){
@@ -862,7 +863,7 @@ $(document).ready(function(){
 		$('#message').show();
 
 	});
-	
+
 	$(document).bind("message:info", function(e, message_text){
 
 		$('#message').html('<p>' + message_text + '</p>');
@@ -870,20 +871,20 @@ $(document).ready(function(){
 		$('#message').show();
 
 	});
-	
+
 	$(document).delegate('a[data-action], button[data-action]', 'click', function(e){
-		
+
 		e.preventDefault();
 		e.stopPropagation();
 		var action = $(this).data('action');
 		var data = $(this).data();
 		$(document).trigger(action, data);
 		return false;
-	
+
 	});
-	
+
 	$(document).delegate('form', 'submit', function(e){
-		
+
 		e.preventDefault();
 		e.stopPropagation();
 		var action = $(this).data('action');
@@ -897,12 +898,12 @@ $(document).ready(function(){
 				data[el.name] = el.value;
 			}
 		}
-		
+
 		$(document).trigger(action, data);
 		return false;
-	
+
 	});
-	
+
 
 	$(document).bind("action:checkin", function(e, data){
 
@@ -913,7 +914,7 @@ $(document).ready(function(){
 		}
 
 	});
-	
+
 	$(document).bind("action:shoutcheckin", function(e, el){
 
 		var venue = $(el).data('venue');
@@ -930,12 +931,12 @@ $(document).ready(function(){
 		var vname = data.q;
 
 		$('#name').val(vname);
-		
+
 		fc.getAddress();
 
 		$('#app-content section:visible').not('#addvenue').hide();
 		$('#addvenue').show();
-		
+
 	});
 
 	$(document).bind("action:addvenue", function(e, data){
@@ -945,7 +946,7 @@ $(document).ready(function(){
 		$('#message').show();
 
 		fc.addVenue(data);
-		
+
 	});
 
 	$(document).bind("data:address", function(e, address){
@@ -967,12 +968,12 @@ $(document).ready(function(){
 		$('#message').html('<div class="loading"></div>');
 		$('#app-content section:visible').not('#message').hide();
 		$('#message').show();
-		
+
 		fc.stopPosWatch();
 		fc.getVenues(data.q);
 
 	});
-	
+
 	$(document).bind("action:getvenue", function(e, el){
 
 		$('#message').html('<div class="loading"></div>');
@@ -1005,7 +1006,7 @@ $(document).ready(function(){
 		fc.getPosition();
 
 	});
-	
+
 	$(document).bind("action:getfriends", function(e, el){
 
 		$('#message').html('<div class="loading"></div>');
@@ -1015,26 +1016,26 @@ $(document).ready(function(){
 		fc.getFriends();
 
 	});
-	
+
 	$('header nav a, a.tab').live('click', function(){
 
 		var $tab = $(this.hash);
 		$('#app-content section:visible').not($tab).hide();
 		$tab.show();
-		
-		
+
+
 		var n = d.getTime();
 		var l = $tab.data('updated');
 		var a = $tab.data('update-action');
-		
+
 		if(a && n - l > 600000){
 			$(document).trigger(a, this);
 		}
-		
+
 		return false;
 
 	});
-	
+
 	if(fc.hasGeoLocation){
 		$('#message').html('<div class="loading"></div>');
 		$('#app-content section:visible').not('#message').hide();
