@@ -635,10 +635,20 @@ $(document).ready(function(){
 					categories.push(venue.categories[c].name);
 				}
 
+				var specials = '';
+				if(typeof(venue.specials) != 'undefined' && venue.specials.length > 0){
+					specials = '; ' + venue.specials.length + ' specials for this venue';
+				}
+
+				var hereNow = '';
+				if(typeof(venue.hereNow) != 'undefined' && venue.hereNow > 0){
+					hereNow = '; ' + venue.hereNow + ' people here';
+				}
+
 				var $li = $('<li></li>');
 				var vh = '<a href="' + fc.baseURL + 'ajax.php?action=venue&amp;venue=' + venue.id + '" data-action="action:getvenue" data-venue="' + venue.id + '">' +
 					'<h3>' + venue.name + '</h3>' +
-					'<p>' + categories.join(', ') + '; ' + venue.hereNow.count + ' people here</p>' +
+					'<p>' + categories.join(', ') + hereNow + specials + '</p>' +
 					'<p>' + address.join(', ') + '&nbsp;</p>' +
 					'</a>' +
 					'<menu>' +
