@@ -14,7 +14,7 @@ class EpiFoursquare
   protected $clientId, $clientSecret, $accessToken;
   protected $requestTokenUrl= 'https://foursquare.com/oauth2/authenticate';
   protected $accessTokenUrl = 'https://foursquare.com/oauth2/access_token';
-  protected $authorizeUrl   = 'https://foursquare.com/oauth/authorize';
+  protected $authorizeUrl   = 'https://foursquare.com/oauth2/authorize';
   protected $apiUrl         = 'https://api.foursquare.com';
   protected $userAgent      = 'EpiFoursquare (http://github.com/jmathai/foursquare-async/tree/)';
   protected $apiVersion     = 'v2';
@@ -28,7 +28,7 @@ class EpiFoursquare
   {
     $params = array('client_id' => $this->clientId, 'client_secret' => $this->clientSecret, 'grant_type' => 'authorization_code', 'redirect_uri' => $redirectUri, 'code' => $code);
     $qs = http_build_query($params);
-    return $this->request('GET', $this->accessTokenUrl, $params);
+	return $this->request('GET', "{$this->accessTokenUrl}", $params);
   }
 
   public function getAuthorizeUrl($redirectUri)
@@ -49,6 +49,11 @@ class EpiFoursquare
       $this->requestTimeout = floatval($requestTimeout);
     if($connectionTimeout !== null)
       $this->connectionTimeout = floatval($connectionTimeout);
+  }
+
+  public function setUserAgent($agent)
+  {
+    $this->userAgent = $agent;
   }
 
   public function useApiVersion($version = null)
@@ -112,10 +117,15 @@ class EpiFoursquare
     if($method === 'GET')
       $url .= is_null($params) ? '' : '?'.http_build_query($params, '', '&');
     $ch  = curl_init($url);
+    curl_setopt($ch, CURLOPT_USERAGENT, $this->userAgent);
     curl_setopt($ch, CURLOPT_HTTPHEADER, array('Expect:'));
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_TIMEOUT, $this->requestTimeout);
     curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+    if(isset($_SERVER ['SERVER_ADDR']) && !empty($_SERVER['SERVER_ADDR']) && $_SERVER['SERVER_ADDR'] != '127.0.0.1')
+      curl_setopt($ch, CURLOPT_INTERFACE, $_SERVER ['SERVER_ADDR']);
     if($method === 'POST' && $params !== null)
     {
       curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($params));
