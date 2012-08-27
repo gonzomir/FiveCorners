@@ -552,43 +552,52 @@ $(document).ready(function(){
 			nameparts.push('@' + friend.contact.twitter);
 		}
 
-		var lastCheckin = friend.checkins.items[0];
-		var venue = lastCheckin.venue;
-		var address = [];
-		if (venue.location.address) address.push(venue.location.address);
-		if (venue.location.city) address.push(venue.location.city);
-		var categories = [];
-		var cats = venue.categories.length;
-		for(var c = 0; c < cats; c += 1){
-			categories.push(venue.categories[c].name);
-		}
+		if(friend.checkins.items && friend.checkins.items.length > 0){
 
-		var checkinTime = lastCheckin.createdAt;
-		var now = d.getTime() / 1000;
-		var minutes = Math.round((now - checkinTime) / 60);
-		var hours = Math.floor(minutes/60);
-		minutes = minutes - hours * 60;
-		var days = Math.floor(hours/24);
-		hours = hours - days * 24;
+			var lastCheckin = friend.checkins.items[0];
+			var venue = lastCheckin.venue;
+			var address = [];
+			if (venue.location.address) address.push(venue.location.address);
+			if (venue.location.city) address.push(venue.location.city);
+			var categories = [];
+			var cats = venue.categories.length;
+			for(var c = 0; c < cats; c += 1){
+				categories.push(venue.categories[c].name);
+			}
 
-		var before = '';
-		if(days > 1){
-			before = days + ' days';
-		}
-		else if(days == 1){
-			before = days + ' day';
-		}
-		else if (hours > 6){
-			before = hours + ' hours';
-		}
-		else if (hours == 0){
-			before = minutes + ' minutes';
+			var checkinTime = lastCheckin.createdAt;
+			var now = d.getTime() / 1000;
+			var minutes = Math.round((now - checkinTime) / 60);
+			var hours = Math.floor(minutes/60);
+			minutes = minutes - hours * 60;
+			var days = Math.floor(hours/24);
+			hours = hours - days * 24;
+
+			var before = '';
+			if(days > 1){
+				before = days + ' days';
+			}
+			else if(days == 1){
+				before = days + ' day';
+			}
+			else if (hours > 6){
+				before = hours + ' hours';
+			}
+			else if (hours == 0){
+				before = minutes + ' minutes';
+			}
+			else{
+				before = hours + 'h ' + minutes + 'min';
+			}
+
+			var lastChekinText = 'was @ <strong>' + venue.name + '</strong> before ' + before + '</p><p>' + categories.join(', ') + '</p><p>' + address.join(', ') + '';
+
 		}
 		else{
-			before = hours + 'h ' + minutes + 'min';
+			var lastChekinText = 'hasn\'t checked in yet.';
 		}
 
-		$('#friend-' + friend.id).html('<h3>' + nameparts.join(' ') + '</h3><p>was @ <strong>' + venue.name + '</strong> before ' + before + '</p><p>' + categories.join(', ') + '</p><p>' + address.join(', ') + '</p></li>');
+		$('#friend-' + friend.id).html('<h3>' + nameparts.join(' ') + '</h3><p>' + lastChekinText + '</p></li>');
 
 	});
 
