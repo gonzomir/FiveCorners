@@ -86,11 +86,11 @@ var fc = (function () {
 
 			if(!currentPosition.address){
 
-			    var latlng = new google.maps.LatLng(currentPosition.coords.latitude, currentPosition.coords.longitude);
-			    geocoder = new google.maps.Geocoder();
-			    geocoder.geocode({'latLng': latlng}, function(results, status) {
-		            if (status == google.maps.GeocoderStatus.OK) {
-		                if (results[0]) {
+				var latlng = new google.maps.LatLng(currentPosition.coords.latitude, currentPosition.coords.longitude);
+				geocoder = new google.maps.Geocoder();
+				geocoder.geocode({'latLng': latlng}, function(results, status) {
+					if (status == google.maps.GeocoderStatus.OK) {
+						if (results[0]) {
 
 							var address = {};
 							address.formattedAddress = results[0].formatted_address;
@@ -123,17 +123,18 @@ var fc = (function () {
 								}
 							}
 
-							currentPosition.address = address;
+							//currentPosition.address = address;
 
 							$(document).trigger("data:address", address);
 
-		                }
-		            }
-			    });
+						}
+					}
+				});
 
 			}
 			else{
-				$(document).trigger("data:address", currentPosition.address);
+				var address = currentPosition.address;
+				$(document).trigger("data:address", address);
 			}
 
 		},
@@ -960,10 +961,10 @@ $(document).ready(function(){
 
 	});
 
-	$(document).bind("action:shoutcheckin", function(e, el){
+	$(document).bind("action:shoutcheckin", function(e, data){
 
-		var venue = $(el).data('venue');
-		var vname = $(el).data('vname');
+		var venue = data.venue;
+		var vname = data.vname;
 		$('#venue').val(venue);
 		$('#shoutForm h2').html('Checkin to ' + vname);
 		$('#app-content section').not('#shoutForm').hide();
@@ -1015,11 +1016,11 @@ $(document).ready(function(){
 
 	});
 
-	$(document).bind("action:getvenue", function(e, el){
+	$(document).bind("action:getvenue", function(e, data){
 
 		$(document).trigger("message:loading", 'Loading venue details.');
 
-		var venue = $(el).data('venue');
+		var venue = data.venue;
 		fc.getVenue(venue);
 
 	});

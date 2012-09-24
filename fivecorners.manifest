@@ -1,6 +1,6 @@
-#version 20120827v1
+#version 20120924v1
 CACHE MANIFEST
-jquery.js
+zepto.min.js
 json2.js
 geolocation.js
 fivecorners.js
