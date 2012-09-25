@@ -1,8 +1,6 @@
-#version 20120924v1
+#version 20120925v1
 CACHE MANIFEST
 zepto.min.js
-json2.js
-geolocation.js
 fivecorners.js
 style.css
 icon_16.png
