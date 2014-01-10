@@ -8,7 +8,7 @@ var fc = (function () {
 		];
 	
 	var cid = 'KWYHM31YGHLDECVLA0AR0D4S5VWRBS0YD3IT5KDXDJCJBOZA';
-	var loginURL = 'https://foursquare.com/oauth2/authenticate?display=touch&client_id=' + cid + '&response_type=token&redirect_uri=' + document.location.href;
+	var loginURL = 'https://foursquare.com/oauth2/authenticate?v=20140110&display=touch&client_id=' + cid + '&response_type=token&redirect_uri=' + document.location.href;
 	
 	var token = '', user = {}, currentPosition = {}, lastPosition = {}, 
 		hasGeoLocation = false, hasLocalStorage = false, 
@@ -167,7 +167,7 @@ var fc = (function () {
 				return;
 			}
 			
-			var url = 'https://api.foursquare.com/v2/venues/search?intent=checkin&limit=50&ll=' + currentPosition.coords.latitude + ',' + currentPosition.coords.longitude + '&oauth_token=' + token;
+			var url = 'https://api.foursquare.com/v2/venues/search?v=20140110&intent=checkin&limit=50&ll=' + currentPosition.coords.latitude + ',' + currentPosition.coords.longitude + '&oauth_token=' + token;
 			if(currentPosition.coords.accuracy !== null){
 				url += '&llAcc=' + currentPosition.coords.accuracy;
 			}
@@ -214,7 +214,7 @@ var fc = (function () {
 			}
 
 			$.ajax({
-				url: 'https://api.foursquare.com/v2/venues/' + id + '?oauth_token=' + token, 
+				url: 'https://api.foursquare.com/v2/venues/' + id + '?v=20140110&oauth_token=' + token, 
 				dataType: 'json',
 				success: function(data, textStatus, XMLHttpRequest){
 
@@ -244,7 +244,7 @@ var fc = (function () {
 
 		addVenue: function(data){
 
-			var url = 'https://api.foursquare.com/v2/venues/add?oauth_token=' + token;
+			var url = 'https://api.foursquare.com/v2/venues/add?v=20140110&oauth_token=' + token;
 			
 			data.ll = currentPosition.coords.latitude + ',' + currentPosition.coords.longitude;
 
@@ -293,7 +293,7 @@ var fc = (function () {
 			}
 
 			$.ajax({
-				url: 'https://api.foursquare.com/v2/venues/' + id + '/tips?oauth_token=' + token,
+				url: 'https://api.foursquare.com/v2/venues/' + id + '/tips?v=20140110&oauth_token=' + token,
 				dataType: 'json',
 				success: function(data, textStatus, XMLHttpRequest){
 
@@ -337,7 +337,7 @@ var fc = (function () {
 			}
 
 			$.ajax({
-				url: 'https://api.foursquare.com/v2/users/self?oauth_token=' + token,
+				url: 'https://api.foursquare.com/v2/users/self?v=20140110&oauth_token=' + token,
 				dataType: 'json',
 				success: function(data, textStatus, XMLHttpRequest){
 
@@ -377,7 +377,7 @@ var fc = (function () {
 			}
 
 			$.ajax({
-				url: 'https://api.foursquare.com/v2/settings/all?oauth_token=' + token,
+				url: 'https://api.foursquare.com/v2/settings/all?v=20140110&oauth_token=' + token,
 				dataType: 'json',
 				success: function(data, textStatus, XMLHttpRequest){
 
@@ -401,7 +401,7 @@ var fc = (function () {
 		getFriends: function(){
 
 			$.ajax({
-				url: 'https://api.foursquare.com/v2/users/self/friends?oauth_token=' + token,
+				url: 'https://api.foursquare.com/v2/users/self/friends?v=20140110&oauth_token=' + token,
 				dataType: 'json',
 				success: function(data, textStatus, XMLHttpRequest){
 
@@ -426,7 +426,7 @@ var fc = (function () {
 		getFriend: function(id){
 
 			$.ajax({
-				url: 'https://api.foursquare.com/v2/users/' + id + '?oauth_token=' + token,
+				url: 'https://api.foursquare.com/v2/users/' + id + '?v=20140110&oauth_token=' + token,
 				dataType: 'json',
 				success: function(data, textStatus, XMLHttpRequest){
 
@@ -451,7 +451,7 @@ var fc = (function () {
 
 		checkin: function(venue, shout){
 
-			var url = 'https://api.foursquare.com/v2/checkins/add?&oauth_token=' + token;
+			var url = 'https://api.foursquare.com/v2/checkins/add?v=20140110&&oauth_token=' + token;
 			var data = {
 				"venueId": venue,
 				"ll": currentPosition.coords.latitude + ',' + currentPosition.coords.longitude
@@ -652,69 +652,63 @@ $(document).ready(function(){
 	$(document).bind("data:venues", function(e, data){
 
 		$('#venues-list').html('<menu><button type="button" data-action="action:getposition">refresh</button></menu>');
-		
-		var groups = data.groups.length;
 
-		for (var g = 0; g<groups; g++){
+		$('#venues-list').append('<h2>Nearby venues</h2>');
 
-			$('#venues-list').append('<h2>' + data.groups[g].name + '</h2>');
+		var venues = data.venues;
 
-			var venues = data.groups[g].items;
+		var v = venues.length;
 
-			var v = venues.length;
+		var ul = document.createElement('ul');
+		var $ul = $(ul);
 
-			var ul = document.createElement('ul');
-			var $ul = $(ul);
+		for(var i = 0; i < v; i += 1){
 
-			for(var i = 0; i < v; i += 1){
-
-				var venue = venues[i];
-				var address = [];
-				if (venue.location.address) address.push(venue.location.address);
-				if (venue.location.city) address.push(venue.location.city);
-				var categories = [];
-				var cats = venue.categories.length;
-				for(var c = 0; c < cats; c += 1){
-					categories.push(venue.categories[c].name);
-				}
-
-				var specials = '';
-				if(typeof(venue.specials) != 'undefined' && venue.specials.length > 0){
-					specials = '; ' + venue.specials.length + ' specials for this venue';
-				}
-
-				var hereNow = '';
-				if(typeof(venue.hereNow) != 'undefined' && venue.hereNow > 0){
-					hereNow = '; ' + venue.hereNow + ' people here';
-				}
-
-				var $li = $('<li></li>');
-				var vh = '<a href="https://api.foursquare.com/v2/venues/' + venue.id + '" data-action="action:getvenue" data-venue="' + venue.id + '">' + 
-					'<h3>' + venue.name + '</h3>' + 
-					'<p>' + categories.join(', ') + '; ' + venue.hereNow.count + ' people here</p>' + 
-					'<p>' + address.join(', ') + '&nbsp;</p>' + 
-					'</a>' + 
-					'<menu>' + 
-						'<button type="button" data-action="action:checkin" data-venue="' + venue.id + '">checkin</button>' + 
-					'</menu>';
-				$li.html(vh);
-
-				$li.attr('data-venue', JSON.stringify(venue) );
-
-				$ul.append($li);
-
+			var venue = venues[i];
+			var address = [];
+			if (venue.location.address) address.push(venue.location.address);
+			if (venue.location.city) address.push(venue.location.city);
+			var categories = [];
+			var cats = venue.categories.length;
+			for(var c = 0; c < cats; c += 1){
+				categories.push(venue.categories[c].name);
 			}
 
-			$('#venues-list').append($ul);
+			var specials = '';
+			if(typeof(venue.specials) != 'undefined' && venue.specials.length > 0){
+				specials = '; ' + venue.specials.length + ' specials for this venue';
+			}
 
-			$('#venues-list').append('<h2>Venue not in the list?</h2> <form action="#" data-action="action:getvenues"> <label for="q">Venue name</label> <input name="q" id="q" type="text" required="required" /> <button type="submit">search venues</button> <button type="button" data-action="action:addvenueform">add venue</button> </form>');
+			var hereNow = '';
+			if(typeof(venue.hereNow) != 'undefined' && venue.hereNow > 0){
+				hereNow = '; ' + venue.hereNow + ' people here';
+			}
 
-			$('#app-content section').not('#venues-list').hide();
-			$('#venues-list').show();
+			var $li = $('<li></li>');
+			var vh = '<a href="https://api.foursquare.com/v2/venues/' + venue.id + '?v=20140110" data-action="action:getvenue" data-venue="' + venue.id + '">' + 
+				'<h3>' + venue.name + '</h3>' + 
+				'<p>' + categories.join(', ') + specials + hereNow + '</p>' + 
+				'<p>' + address.join(', ') + '&nbsp;</p>' + 
+				'</a>' + 
+				'<menu>' + 
+					'<button type="button" data-action="action:checkin" data-venue="' + venue.id + '">checkin</button>' + 
+				'</menu>';
+			$li.html(vh);
 
-			$('#venues-list').data('updated', d.getTime());
+			$li.attr('data-venue', JSON.stringify(venue) );
+
+			$ul.append($li);
 
 		}
+
+		$('#venues-list').append($ul);
+
+		$('#venues-list').append('<h2>Venue not in the list?</h2> <form action="#" data-action="action:getvenues"> <label for="q">Venue name</label> <input name="q" id="q" type="text" required="required" /> <button type="submit">search venues</button> <button type="button" data-action="action:addvenueform">add venue</button> </form>');
+
+		$('#app-content section').not('#venues-list').hide();
+		$('#venues-list').show();
+
+		$('#venues-list').data('updated', d.getTime());
 
 	});
 
@@ -795,7 +789,7 @@ $(document).ready(function(){
 			if(mayor.user.lastname != ''){
 				nameparts.push(mayor.user.lastName);
 			}
-			$m.append('<h3>Mayor</h3><p>' + nameparts.join(' ') + ' from ' + mayor.user.homeCity + '</p>');
+			$m.append('<h3>Mayor</h3><p>' + nameparts.join(' ') + '</p>');
 		}
 		else{
 			$m.append("<h3>Mayor</h3><p>This venue doesn't have a mayour yet.</p>");
@@ -845,7 +839,7 @@ $(document).ready(function(){
 					if(user.lastName != ''){
 						nameparts.push(user.lastName);
 					}
-					$ul.append('<li><strong>' + nameparts.join(' ') + '</strong> from ' + user.homeCity + ' says:<p>' + tip.text + '</p></li>');
+					$ul.append('<li><strong>' + nameparts.join(' ') + '</strong> says:<p>' + tip.text + '</p></li>');
 				}
 
 				$m.append($ul);
@@ -883,7 +877,7 @@ $(document).ready(function(){
 				if(user.lastName != ''){
 					nameparts.push(user.lastName);
 				}
-				$ul.append('<li><strong>' + nameparts.join(' ') + '</strong> from ' + user.homeCity + ' says:<p>' + tip.text + '</p></li>');
+				$ul.append('<li><strong>' + nameparts.join(' ') + '</strong> says:<p>' + tip.text + '</p></li>');
 			}
 			$('#message').append($ul);
 		}
