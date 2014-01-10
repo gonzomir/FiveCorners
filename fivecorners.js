@@ -7,7 +7,7 @@ var fc = (function () {
 			'Timeout'
 		];
 	
-	var cid = 'COYWDW4AO1U2LO41GURMNF2RFGPJL502XPH5MEL2H0HL1M2Q';
+	var cid = 'KWYHM31YGHLDECVLA0AR0D4S5VWRBS0YD3IT5KDXDJCJBOZA';
 	var loginURL = 'https://foursquare.com/oauth2/authenticate?display=touch&client_id=' + cid + '&response_type=token&redirect_uri=' + document.location.href;
 	
 	var token = '', user = {}, currentPosition = {}, lastPosition = {}, 
