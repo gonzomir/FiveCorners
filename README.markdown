@@ -1,7 +1,7 @@
 FiveCorners
 ===========
 
-FIveCorners is a Foursw=quare web-app client with focus on fast checkin. 
+FIveCorners is a Foursquare web-app client with focus on fast checkin. 
 
 It uses GeoLocation API to show nearby venues, which means it will work on most of
 the modern smartphones. Since Nokia's browser still does not support GeoLocation, 

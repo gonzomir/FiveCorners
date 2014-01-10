@@ -153,6 +153,7 @@ var fc = (function () {
 			if(q != undefined && q !== ''){
 				url += '&query=' + q;
 			}
+			url += '&utf8=✓';
 
 			$.ajax({
 				url: url,
@@ -192,7 +193,7 @@ var fc = (function () {
 			}
 
 			$.ajax({
-				url: baseURL + 'ajax.php?action=venue&venue=' + id,
+				url: baseURL + 'ajax.php?action=venue&venue=' + id + '&utf8=✓',
 				dataType: 'json',
 				success: function(data, textStatus, XMLHttpRequest){
 
@@ -226,10 +227,11 @@ var fc = (function () {
 
 			for(var a in data){
 				if(data[a] != undefined && data[a] != ''){
-					url = url  + '&' + a + '=' + data[a];
+					url = url  + '&' + a + '=' + encodeURIComponent(data[a]);
 				}
 			}
-
+			url += '&utf8=✓';
+	
 			$.ajax({
 				url: url,
 				dataType: 'json',
@@ -273,7 +275,7 @@ var fc = (function () {
 			}
 
 			$.ajax({
-				url: baseURL + 'ajax.php?action=tips&venue=' + id,
+				url: baseURL + 'ajax.php?action=tips&venue=' + id + '&utf8=✓',
 				dataType: 'json',
 				success: function(data, textStatus, XMLHttpRequest){
 
@@ -317,7 +319,7 @@ var fc = (function () {
 			}
 
 			$.ajax({
-				url: baseURL + 'ajax.php?action=user',
+				url: baseURL + 'ajax.php?action=user&utf8=✓',
 				dataType: 'json',
 				success: function(data, textStatus, XMLHttpRequest){
 
@@ -357,7 +359,7 @@ var fc = (function () {
 			}
 
 			$.ajax({
-				url: baseURL + 'ajax.php?action=settings',
+				url: baseURL + 'ajax.php?action=settings&utf8=✓',
 				dataType: 'json',
 				success: function(data, textStatus, XMLHttpRequest){
 
@@ -381,7 +383,7 @@ var fc = (function () {
 		getFriends: function(){
 
 			$.ajax({
-				url: baseURL + 'ajax.php?action=friends',
+				url: baseURL + 'ajax.php?action=friends&utf8=✓',
 				dataType: 'json',
 				success: function(data, textStatus, XMLHttpRequest){
 
@@ -406,7 +408,7 @@ var fc = (function () {
 		getFriend: function(id){
 
 			$.ajax({
-				url: baseURL + 'ajax.php?action=friend&friend=' + id,
+				url: baseURL + 'ajax.php?action=friend&friend=' + id + '&utf8=✓',
 				dataType: 'json',
 				success: function(data, textStatus, XMLHttpRequest){
 
@@ -438,17 +440,20 @@ var fc = (function () {
 			if(shout){
 				url = url + '&shout=' + encodeURIComponent(shout);
 			}
+			url += '&utf8=✓';
 
 			var bcast = 'public';
+			/*
 			if(this.user.settings && this.user.settings.sendToTwitter){
 				bcast =  bcast + ',twitter';
 			}
 			if(this.user.settings && this.user.settings.sendToFacebook){
 				bcast =  bcast + ',facebook';
 			}
+			*/
 
 			url = url + '&broadcast=' + bcast;
-
+			url += '&utf8=✓';
 
 			$.ajax({
 				url: url,
