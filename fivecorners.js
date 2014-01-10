@@ -6,11 +6,12 @@ var fc = (function () {
 			'Position unavailable, try again later. Some devices require GPS to be turned on.',
 			'Timeout'
 		];
-
-	var baseURL = '';
-
-	var user = {}, currentPosition = {}, lastPosition = {},
-		hasGeoLocation = false, hasLocalStorage = false,
+	
+	var cid = 'COYWDW4AO1U2LO41GURMNF2RFGPJL502XPH5MEL2H0HL1M2Q';
+	var loginURL = 'https://foursquare.com/oauth2/authenticate?display=touch&client_id=' + cid + '&response_type=token&redirect_uri=' + document.location.href;
+	
+	var token = '', user = {}, currentPosition = {}, lastPosition = {}, 
+		hasGeoLocation = false, hasLocalStorage = false, 
 		posWatch = null, d = new Date();
 
 	if (navigator.geolocation){
@@ -27,13 +28,33 @@ var fc = (function () {
 
 	hasLocalStorage = supports_html5_storage();
 
+	if(document.location.hash != ''){
+		var h = document.location.hash.substr(1).split('=');
+		if(h[0] == 'access_token' && h[1] != ''){
+			token = h[1];
+			if (hasLocalStorage){
+				localStorage.setItem('token', token);
+			}
+		}
+		else if(h[0] = 'error'){
+			//TODO: What should we do in this case? There's still no handlers set for DOM events.
+			$(document).trigger("error:other", 'oAuth error: ' + h[1]);
+		}
+	}
+
+	if (token == '' && hasLocalStorage){
+		token = localStorage.getItem('token');
+	}
+
 	return {
 
 		hasGeoLocation: hasGeoLocation,
 
 		hasLocalStorage: hasLocalStorage,
-
-		baseURL: baseURL,
+		
+		loginURL: loginURL,
+		
+		isAuthenticated: (token != ''),
 
 		getPosition: function(){
 
@@ -145,8 +166,8 @@ var fc = (function () {
 				$(document).trigger("error:other", 'There is no position information available yet.');
 				return;
 			}
-
-			var url = baseURL + 'ajax.php?action=venues&intent=checkin&limit=50&ll=' + currentPosition.coords.latitude + ',' + currentPosition.coords.longitude;
+			
+			var url = 'https://api.foursquare.com/v2/venues/search?intent=checkin&limit=50&ll=' + currentPosition.coords.latitude + ',' + currentPosition.coords.longitude + '&oauth_token=' + token;
 			if(currentPosition.coords.accuracy !== null){
 				url += '&llAcc=' + currentPosition.coords.accuracy;
 			}
@@ -181,7 +202,7 @@ var fc = (function () {
 		getVenue: function(id){
 
 			if(hasLocalStorage){
-				var venues = window.localStorage.getItem('venue:' + id);
+				var venues = localStorage.getItem('venue:' + id);
 				if(venues && venues != 'undefined'){
 					var venue = JSON.parse(venues);
 					var now = d.getTime() / 1000;
@@ -193,7 +214,7 @@ var fc = (function () {
 			}
 
 			$.ajax({
-				url: baseURL + 'ajax.php?action=venue&venue=' + id + '&utf8=✓',
+				url: 'https://api.foursquare.com/v2/venues/' + id + '?oauth_token=' + token, 
 				dataType: 'json',
 				success: function(data, textStatus, XMLHttpRequest){
 
@@ -223,17 +244,14 @@ var fc = (function () {
 
 		addVenue: function(data){
 
-			var url = baseURL + 'ajax.php?action=addVenue&ll=' + currentPosition.coords.latitude + ',' + currentPosition.coords.longitude;
+			var url = 'https://api.foursquare.com/v2/venues/add?oauth_token=' + token;
+			
+			data.ll = currentPosition.coords.latitude + ',' + currentPosition.coords.longitude;
 
-			for(var a in data){
-				if(data[a] != undefined && data[a] != ''){
-					url = url  + '&' + a + '=' + encodeURIComponent(data[a]);
-				}
-			}
-			url += '&utf8=✓';
-	
 			$.ajax({
 				url: url,
+				data: data,
+				type: 'POST',
 				dataType: 'json',
 				success: function(data, textStatus, XMLHttpRequest){
 
@@ -263,7 +281,7 @@ var fc = (function () {
 		getTips: function(id, venueName){
 
 			if(hasLocalStorage){
-				var stips = window.localStorage.getItem('tips:' + id);
+				var stips = localStorage.getItem('tips:' + id);
 				if(stips && stips != 'undefined'){
 					var tips = JSON.parse(stips);
 					var now = d.getTime() / 1000;
@@ -275,7 +293,7 @@ var fc = (function () {
 			}
 
 			$.ajax({
-				url: baseURL + 'ajax.php?action=tips&venue=' + id + '&utf8=✓',
+				url: 'https://api.foursquare.com/v2/venues/' + id + '/tips?oauth_token=' + token,
 				dataType: 'json',
 				success: function(data, textStatus, XMLHttpRequest){
 
@@ -310,7 +328,7 @@ var fc = (function () {
 			var me = this;
 
 			if(hasLocalStorage){
-				var users = window.localStorage.getItem('user');
+				var users = localStorage.getItem('user');
 				if(users && users != 'undefined'){
 					me.user = JSON.parse(users);
 					$(document).trigger("data:user", me.user);
@@ -319,7 +337,7 @@ var fc = (function () {
 			}
 
 			$.ajax({
-				url: baseURL + 'ajax.php?action=user&utf8=✓',
+				url: 'https://api.foursquare.com/v2/users/self?oauth_token=' + token,
 				dataType: 'json',
 				success: function(data, textStatus, XMLHttpRequest){
 
@@ -359,7 +377,7 @@ var fc = (function () {
 			}
 
 			$.ajax({
-				url: baseURL + 'ajax.php?action=settings&utf8=✓',
+				url: 'https://api.foursquare.com/v2/settings/all?oauth_token=' + token,
 				dataType: 'json',
 				success: function(data, textStatus, XMLHttpRequest){
 
@@ -383,7 +401,7 @@ var fc = (function () {
 		getFriends: function(){
 
 			$.ajax({
-				url: baseURL + 'ajax.php?action=friends&utf8=✓',
+				url: 'https://api.foursquare.com/v2/users/self/friends?oauth_token=' + token,
 				dataType: 'json',
 				success: function(data, textStatus, XMLHttpRequest){
 
@@ -408,7 +426,7 @@ var fc = (function () {
 		getFriend: function(id){
 
 			$.ajax({
-				url: baseURL + 'ajax.php?action=friend&friend=' + id + '&utf8=✓',
+				url: 'https://api.foursquare.com/v2/users/' + id + '?oauth_token=' + token,
 				dataType: 'json',
 				success: function(data, textStatus, XMLHttpRequest){
 
@@ -433,12 +451,16 @@ var fc = (function () {
 
 		checkin: function(venue, shout){
 
-			var url = baseURL + 'ajax.php?action=checkin&venueId=' + venue + '&ll=' + currentPosition.coords.latitude + ',' + currentPosition.coords.longitude;
+			var url = 'https://api.foursquare.com/v2/checkins/add?&oauth_token=' + token;
+			var data = {
+				"venueId": venue,
+				"ll": currentPosition.coords.latitude + ',' + currentPosition.coords.longitude
+				}
 			if(currentPosition.coords.accuracy !== null){
-				url = url  + '&llAcc=' + currentPosition.coords.accuracy;
+				data.llAcc = currentPosition.coords.accuracy;
 			}
 			if(shout){
-				url = url + '&shout=' + encodeURIComponent(shout);
+				data.shout = shout;
 			}
 			url += '&utf8=✓';
 
@@ -452,11 +474,13 @@ var fc = (function () {
 			}
 			*/
 
-			url = url + '&broadcast=' + bcast;
-			url += '&utf8=✓';
+			data.broadcast = bcast;
+			
 
 			$.ajax({
 				url: url,
+				data: data,
+				type: 'POST',
 				dataType: 'json',
 				success: function(data, textStatus, XMLHttpRequest){
 
@@ -486,7 +510,11 @@ $(document).ready(function(){
 	var d = new Date();
 
 	$(document).bind("data:user", function(e, data){
-
+		
+		if(data.response){
+			data = data.response;
+		}
+		
 		var nameparts = [];
 		if(data.user.firstname != ''){
 			nameparts.push(data.user.firstName);
@@ -623,7 +651,7 @@ $(document).ready(function(){
 
 	$(document).bind("data:venues", function(e, data){
 
-		$('#venues-list').html('<menu><button type="button" data-action="action:getposition">refersh</button></menu>');
+		$('#venues-list').html('<menu><button type="button" data-action="action:getposition">refresh</button></menu>');
 		
 		var groups = data.groups.length;
 
@@ -661,12 +689,12 @@ $(document).ready(function(){
 				}
 
 				var $li = $('<li></li>');
-				var vh = '<a href="' + fc.baseURL + 'ajax.php?action=venue&amp;venue=' + venue.id + '" data-action="action:getvenue" data-venue="' + venue.id + '">' +
-					'<h3>' + venue.name + '</h3>' +
-					'<p>' + categories.join(', ') + hereNow + specials + '</p>' +
-					'<p>' + address.join(', ') + '&nbsp;</p>' +
-					'</a>' +
-					'<menu>' +
+				var vh = '<a href="https://api.foursquare.com/v2/venues/' + venue.id + '" data-action="action:getvenue" data-venue="' + venue.id + '">' + 
+					'<h3>' + venue.name + '</h3>' + 
+					'<p>' + categories.join(', ') + '; ' + venue.hereNow.count + ' people here</p>' + 
+					'<p>' + address.join(', ') + '&nbsp;</p>' + 
+					'</a>' + 
+					'<menu>' + 
 						'<button type="button" data-action="action:checkin" data-venue="' + venue.id + '">checkin</button>' + 
 					'</menu>';
 				$li.html(vh);
@@ -875,9 +903,10 @@ $(document).ready(function(){
 
 			if(fc.hasLocalStorage){
 				localStorage.removeItem('user');
+				localStorage.removeItem('token');
 			}
-			var data = $.parseJSON( XMLHttpRequest.responseText );
-			document.location = data.loginurl;
+			
+			$(document).trigger('message:info', '<a href="' + fc.loginURL + '" class="button">Login with Foursquare</a>');
 
 		}
 		else{
@@ -1077,8 +1106,13 @@ $(document).ready(function(){
 	});
 
 	if(fc.hasGeoLocation){
-		$(document).trigger("message:loading", 'Wait...');
-		fc.getUser();
+		if(!fc.isAuthenticated){
+			$(document).trigger('message:info', '<a href="' + fc.loginURL + '" class="button">Login with Foursquare</a>');
+		}
+		else{
+			$(document).trigger("message:loading", 'Wait...');
+			fc.getUser();
+		}
 	}
 	else{
 		$(document).trigger("error:other", 'Your browser does not support GeoLocation, sorry. You better use <a href="http://m.foursquare.com">Foursquare mobile site</a>.');
