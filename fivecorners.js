@@ -1,5 +1,7 @@
 var fc = (function () {
 
+	var me = this;
+
 	var gle = [
 			'Unknown error.',
 			'Permission denied. This is all about location, can\'t go without it.',
@@ -60,13 +62,11 @@ var fc = (function () {
 
 			if (hasGeoLocation){
 
-				var me = this;
-
-				if(posWatch){
-					this.stopPosWatch();
+				if(me.posWatch){
+					me.stopPosWatch();
 				}
 
-				posWatch = navigator.geolocation.watchPosition(
+				me.posWatch = navigator.geolocation.watchPosition(
 
 					function (position) {
 
@@ -77,14 +77,13 @@ var fc = (function () {
 					},
 					// next function is the error callback
 					function (error) {
-						if(error.code != 2){
-							var error_message = gle[error.code];
-							$(document).trigger("error:other", error_message);
-						}
+						var error_message = gle[error.code];
+						$(document).trigger("error:other", error.message);
 					},
 					{
+						maximumAge: 60000,
 						enableHighAccuracy: true,
-						timeout: 60000
+						timeout: 30000
 					}
 				);
 
@@ -179,6 +178,7 @@ var fc = (function () {
 			$.ajax({
 				url: url,
 				dataType: 'json',
+				crossDomain: true,
 				success: function(data, textStatus, XMLHttpRequest){
 
 						if( data.meta.code != 200 ){
@@ -216,6 +216,7 @@ var fc = (function () {
 			$.ajax({
 				url: 'https://api.foursquare.com/v2/venues/' + id + '?v=20140110&oauth_token=' + token, 
 				dataType: 'json',
+				crossDomain: true,
 				success: function(data, textStatus, XMLHttpRequest){
 
 						if( data.meta.code != 200 ){
@@ -253,6 +254,7 @@ var fc = (function () {
 				data: data,
 				type: 'POST',
 				dataType: 'json',
+				crossDomain: true,
 				success: function(data, textStatus, XMLHttpRequest){
 
 						if( data.meta.code!=200 ){
@@ -295,6 +297,7 @@ var fc = (function () {
 			$.ajax({
 				url: 'https://api.foursquare.com/v2/venues/' + id + '/tips?v=20140110&oauth_token=' + token,
 				dataType: 'json',
+				crossDomain: true,
 				success: function(data, textStatus, XMLHttpRequest){
 
 						if( data.meta.code != 200 ){
@@ -339,6 +342,7 @@ var fc = (function () {
 			$.ajax({
 				url: 'https://api.foursquare.com/v2/users/self?v=20140110&oauth_token=' + token,
 				dataType: 'json',
+				crossDomain: true,
 				success: function(data, textStatus, XMLHttpRequest){
 
 						if( data.meta.code != 200 ){
@@ -358,6 +362,7 @@ var fc = (function () {
 					},
 				error: function(XMLHttpRequest, textStatus, errorThrown){
 
+						console.log(XMLHttpRequest);
 						$(document).trigger("error:http", XMLHttpRequest);
 
 					}
@@ -379,6 +384,7 @@ var fc = (function () {
 			$.ajax({
 				url: 'https://api.foursquare.com/v2/settings/all?v=20140110&oauth_token=' + token,
 				dataType: 'json',
+				crossDomain: true,
 				success: function(data, textStatus, XMLHttpRequest){
 
 						me.user.settings = data.response.settings;
@@ -403,6 +409,7 @@ var fc = (function () {
 			$.ajax({
 				url: 'https://api.foursquare.com/v2/users/self/friends?v=20140110&oauth_token=' + token,
 				dataType: 'json',
+				crossDomain: true,
 				success: function(data, textStatus, XMLHttpRequest){
 
 						if( data.meta.code != 200 ){
@@ -428,6 +435,7 @@ var fc = (function () {
 			$.ajax({
 				url: 'https://api.foursquare.com/v2/users/' + id + '?v=20140110&oauth_token=' + token,
 				dataType: 'json',
+				crossDomain: true,
 				success: function(data, textStatus, XMLHttpRequest){
 
 						if( data.meta.code != 200 ){
@@ -482,6 +490,7 @@ var fc = (function () {
 				data: data,
 				type: 'POST',
 				dataType: 'json',
+				crossDomain: true,
 				success: function(data, textStatus, XMLHttpRequest){
 
 						if( data.meta.code!=200 ){
@@ -1080,7 +1089,7 @@ $(document).ready(function(){
 
 	});
 
-	$('header nav a, a.tab').live('click', function(){
+	$('header nav a, a.tab').on('click', function(){
 
 		var $tab = $(this.hash);
 		$('#app-content section').not($tab).hide();
