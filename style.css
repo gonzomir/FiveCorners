@@ -1,6 +1,6 @@
 body {
 	margin: 0;
-	padding: 0;
+	padding: 128px 0 0;
 	background: #fff;
 	color: #333;
 	font-size: 18px;
@@ -11,9 +11,14 @@ body {
 
 header {
 	display: block;
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
 	padding: 10px 20px 0px 20px;
 	background: #0CBADF;
 	color: #fff;
+	z-index: 10;
 }
 
 h1 {
@@ -53,7 +58,7 @@ menu {
 	margin: 0;
 	padding: 0;
 	background: #fff;
-	z-index: 20;
+	z-index: 5;
 }
 
 p {
