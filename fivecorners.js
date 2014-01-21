@@ -647,7 +647,7 @@ $(document).ready(function(){
 
 	$(document).bind("data:position",function(e, position){
 
-		$('header span.location').html('[' +  position.coords.latitude + ', ' + position.coords.longitude + ' (' + position.coords.accuracy + ')]');
+		$('header span.location').html('[' +  ( Math.round(position.coords.latitude * 10000) / 10000 ) + ', ' + ( Math.round(position.coords.longitude * 10000) / 10000 ) + ' (' + Math.round(position.coords.accuracy) + ')]');
 		if(position.coords.accuracy < 500 || position.coords.accuracy == null){
 			fc.stopPosWatch();
 			fc.getVenues();
