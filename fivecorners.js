@@ -694,14 +694,16 @@ $(document).ready(function(){
 			}
 
 			var $li = $('<li></li>');
-			var vh = '<a href="https://api.foursquare.com/v2/venues/' + venue.id + '?v=20140110" data-action="action:getvenue" data-venue="' + venue.id + '">' + 
+			var vh = '' +
+				'<menu>' + 
+					'<button type="button" data-action="action:checkin" data-venue="' + venue.id + '">checkin</button>' + 
+				'</menu>' + 
+				'<a href="https://api.foursquare.com/v2/venues/' + venue.id + '?v=20140110" data-action="action:getvenue" data-venue="' + venue.id + '">' + 
 				'<h3>' + venue.name + '</h3>' + 
 				'<p>' + categories.join(', ') + specials + hereNow + '</p>' + 
 				'<p>' + address.join(', ') + '&nbsp;</p>' + 
 				'</a>' + 
-				'<menu>' + 
-					'<button type="button" data-action="action:checkin" data-venue="' + venue.id + '">checkin</button>' + 
-				'</menu>';
+				'';
 			$li.html(vh);
 
 			$li.attr('data-venue', JSON.stringify(venue) );

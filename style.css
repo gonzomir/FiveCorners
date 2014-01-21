@@ -51,7 +51,6 @@ nav, menu {
 menu {
 	position: relative;
 	margin: 0;
-	margin-top: -50px;
 	padding: 0;
 	background: #fff;
 	z-index: 20;
