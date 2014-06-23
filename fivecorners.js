@@ -8,12 +8,12 @@ var fc = (function () {
 			'Position unavailable, try again later. Some devices require GPS to be turned on.',
 			'Timeout'
 		];
-	
+
 	var cid = 'KWYHM31YGHLDECVLA0AR0D4S5VWRBS0YD3IT5KDXDJCJBOZA';
 	var loginURL = 'https://foursquare.com/oauth2/authenticate?v=20140110&display=touch&client_id=' + cid + '&response_type=token&redirect_uri=' + document.location.href;
-	
-	var token = '', user = {}, currentPosition = {}, lastPosition = {}, 
-		hasGeoLocation = false, hasLocalStorage = false, 
+
+	var token = '', user = {}, currentPosition = {}, lastPosition = {},
+		hasGeoLocation = false, hasLocalStorage = false,
 		posWatch = null, d = new Date();
 
 	if (navigator.geolocation){
@@ -53,9 +53,9 @@ var fc = (function () {
 		hasGeoLocation: hasGeoLocation,
 
 		hasLocalStorage: hasLocalStorage,
-		
+
 		loginURL: loginURL,
-		
+
 		isAuthenticated: (token != ''),
 
 		getPosition: function(){
@@ -165,7 +165,7 @@ var fc = (function () {
 				$(document).trigger("error:other", 'There is no position information available yet.');
 				return;
 			}
-			
+
 			var url = 'https://api.foursquare.com/v2/venues/search?v=20140110&intent=checkin&limit=50&ll=' + currentPosition.coords.latitude + ',' + currentPosition.coords.longitude + '&oauth_token=' + token;
 			if(currentPosition.coords.accuracy !== null){
 				url += '&llAcc=' + currentPosition.coords.accuracy;
@@ -214,7 +214,7 @@ var fc = (function () {
 			}
 
 			$.ajax({
-				url: 'https://api.foursquare.com/v2/venues/' + id + '?v=20140110&oauth_token=' + token, 
+				url: 'https://api.foursquare.com/v2/venues/' + id + '?v=20140110&oauth_token=' + token,
 				dataType: 'json',
 				crossDomain: true,
 				success: function(data, textStatus, XMLHttpRequest){
@@ -246,7 +246,7 @@ var fc = (function () {
 		addVenue: function(data){
 
 			var url = 'https://api.foursquare.com/v2/venues/add?v=20140110&oauth_token=' + token;
-			
+
 			data.ll = currentPosition.coords.latitude + ',' + currentPosition.coords.longitude;
 
 			$.ajax({
@@ -483,7 +483,7 @@ var fc = (function () {
 			*/
 
 			data.broadcast = bcast;
-			
+
 
 			$.ajax({
 				url: url,
@@ -519,11 +519,11 @@ $(document).ready(function(){
 	var d = new Date();
 
 	$(document).bind("data:user", function(e, data){
-		
+
 		if(data.response){
 			data = data.response;
 		}
-		
+
 		var nameparts = [];
 		if(data.user.firstname != ''){
 			nameparts.push(data.user.firstName);
@@ -541,9 +541,9 @@ $(document).ready(function(){
 	});
 
 	$(document).bind("data:friends", function(e, data){
-	
+
 		$('#friends-list').html('<menu><button type="button" data-action="action:getfriends">refresh</button></menu>');
-		
+
 		var i = 0, nameparts = [], friend = {};
 
 		var friendsCount = data.friends.count;
@@ -695,14 +695,14 @@ $(document).ready(function(){
 
 			var $li = $('<li></li>');
 			var vh = '' +
-				'<menu>' + 
-					'<button type="button" data-action="action:checkin" data-venue="' + venue.id + '">checkin</button>' + 
-				'</menu>' + 
-				'<a href="https://api.foursquare.com/v2/venues/' + venue.id + '?v=20140110" data-action="action:getvenue" data-venue="' + venue.id + '">' + 
-				'<h3>' + venue.name + '</h3>' + 
-				'<p>' + categories.join(', ') + specials + hereNow + '</p>' + 
-				'<p>' + address.join(', ') + '&nbsp;</p>' + 
-				'</a>' + 
+				'<menu>' +
+					'<button type="button" data-action="action:checkin" data-venue="' + venue.id + '">checkin</button>' +
+				'</menu>' +
+				'<a href="https://api.foursquare.com/v2/venues/' + venue.id + '?v=20140110" data-action="action:getvenue" data-venue="' + venue.id + '">' +
+				'<h3>' + venue.name + '</h3>' +
+				'<p>' + categories.join(', ') + specials + hereNow + '</p>' +
+				'<p>' + address.join(', ') + '&nbsp;</p>' +
+				'</a>' +
 				'';
 			$li.html(vh);
 
@@ -729,12 +729,11 @@ $(document).ready(function(){
 
 		var $div = $('<div class="checked-in"></div>');
 
-		var checkin = {};
+		var checkin = data.response.checkin;
 		checkin.badges = [];
 
-		var notifications = data.notifications;
-		var n = notifications.length;
-		for( var i = 0; i < n; i += 1 ){
+		var notifications = data.response.notifications;
+		for( var i = 0, n = notifications.length; i < n; i += 1 ){
 			var notification = notifications[i];
 			switch(notification.type){
 				case "message":
@@ -749,7 +748,8 @@ $(document).ready(function(){
 			}
 		}
 
-		$div.append('<h3>' + checkin.message + '</h3>');
+		$div.append('<h3>Welcome to ' + checkin.venue.name + '</h3>');
+		$div.append('<p>' + checkin.message + '</p>');
 
 		if(checkin.mayor){
 			$div.append('<p>' + checkin.mayor + '</p>');
@@ -790,7 +790,7 @@ $(document).ready(function(){
 		}
 
 		$m.append('<p>' + categories.join(', ') + '</p><p>' + address.join(', ') + '</p><p><button type="button" data-action="action:checkin" data-venue="' + venue.id + '">checkin here</button><button type="button" data-action="action:shoutcheckin" data-venue="' + venue.id + '" data-vname="' + venue.name.replace('"','&quote;') + '">checkin with shout</button></p>');
-		
+
 		var mayor = venue.mayor;
 		if(mayor.count>0){
 			var nameparts = [];
@@ -858,7 +858,7 @@ $(document).ready(function(){
 			}
 
 		}
-		
+
 		$('#app-content section').not('#message').hide();
 		$m.show();
 
@@ -895,7 +895,7 @@ $(document).ready(function(){
 		else{
 			$('#message').append('<p>No tips for this venue.</p>');
 		}
-		
+
 		$('#app-content section').not('#message').hide();
 		$('#message').show();
 
@@ -910,12 +910,12 @@ $(document).ready(function(){
 				localStorage.removeItem('user');
 				localStorage.removeItem('token');
 			}
-			
+
 			$(document).trigger('message:info', '<a href="' + fc.loginURL + '" class="button">Login with Foursquare</a>');
 
 		}
 		else{
-			
+
 			var errorText = '';
 			try{
 				data = JSON.parse(XMLHttpRequest.responseText);
@@ -947,7 +947,7 @@ $(document).ready(function(){
 		$('#message').show();
 
 	});
-	
+
 	$(document).bind("message:loading", function(e, message_text){
 
 		$('#message').html('<div class="loading"><p>' + message_text + '</p></div>');
@@ -955,7 +955,7 @@ $(document).ready(function(){
 		$('#message').show();
 
 	});
-	
+
 	$(document).delegate('a[data-action], button[data-action]', 'click', function(e){
 
 		e.preventDefault();
@@ -1049,7 +1049,7 @@ $(document).ready(function(){
 	$(document).bind("action:getvenues", function(e, data){
 
 		$(document).trigger("message:loading", 'Looking up venues.');
-		
+
 		fc.stopPosWatch();
 		fc.getVenues(data.q);
 
